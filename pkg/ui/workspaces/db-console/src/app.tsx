@@ -65,7 +65,8 @@ import StatementDetails from "src/views/statements/statementDetails";
 import SessionDetails from "src/views/sessions/sessionDetails";
 import StatementsDiagnosticsHistoryView from "src/views/reports/containers/statementDiagnosticsHistory";
 import { RedirectToStatementDetails } from "src/routes/RedirectToStatementDetails";
-import "styl/app.styl";
+import "@cockroachlabs/cluster-ui/dist/js/main.css";
+import "../styl/app.styl";
 
 // NOTE: If you are adding a new path to the router, and that path contains any
 // components that are personally identifying information, you MUST update the

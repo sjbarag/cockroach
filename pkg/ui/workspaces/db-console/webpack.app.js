@@ -50,6 +50,7 @@ module.exports = (env, argv) => {
 
   let plugins = [
     new RemoveBrokenDependenciesPlugin(),
+    // https://github.com/DasRed/esbuild-plugin-copy
     new CopyWebpackPlugin([
       { from: path.resolve(__dirname, "favicon.ico"), to: "favicon.ico" },
     ]),
@@ -111,7 +112,9 @@ module.exports = (env, argv) => {
 
     module: {
       rules: [
+        // esbuild-style-plugin
         { test: /\.css$/, use: ["style-loader", "css-loader"] },
+        // esbuild-style-plugin
         {
           test: /\.module\.styl$/,
           use: [
@@ -134,6 +137,7 @@ module.exports = (env, argv) => {
             },
           ],
         },
+        // esbuild-style-plugin
         {
           test: /(?<!\.module)\.styl$/,
           use: [
@@ -148,6 +152,7 @@ module.exports = (env, argv) => {
             },
           ],
         },
+        // LoaderDataURL or LoaderFile
         {
           test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,
           loader: "url-loader",
@@ -155,7 +160,9 @@ module.exports = (env, argv) => {
             limit: 10000,
           },
         },
+        // LoaderFile
         { test: /\.html$/, loader: "file-loader" },
+        // default
         {
           test: /\.js$/,
           include: localRoots,
@@ -167,6 +174,7 @@ module.exports = (env, argv) => {
           ],
           use: ["cache-loader", "babel-loader"],
         },
+        // default
         {
           test: /\.(ts|tsx)?$/,
           include: localRoots,
@@ -184,6 +192,7 @@ module.exports = (env, argv) => {
         },
 
         // All output ".js" files will have any sourcemaps re-processed by "source-map-loader".
+        // default behavior with Sourcemap: … :shrug: …
         {
           enforce: "pre",
           test: /\.js$/,
@@ -238,6 +247,7 @@ module.exports = (env, argv) => {
     config.module.rules.push({
       test: /src\/redux\/state.ts$/,
       loader: StringReplacePlugin.replace({
+        // JS-only: https://github.com/aheissenberger/esbuild-plugin-text-replace
         replacements: [
           {
             pattern: /import rootSaga from ".\/sagas";/gi, // match last 'import' expression in module.

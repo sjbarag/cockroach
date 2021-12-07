@@ -43,7 +43,7 @@ import {
   ICancelQueryRequest,
 } from "src/store/terminateQuery";
 
-import statementsPageStyles from "src/statementsPage/statementsPage.module.scss";
+import statementsPageStyles from "../statementsPage/statementsPage.module.scss";
 import sessionPageStyles from "./sessionPage.module.scss";
 
 const statementsPageCx = classNames.bind(statementsPageStyles);

@@ -19,7 +19,7 @@ import { LocalityTier, LocalityTree } from "src/redux/localities";
 import { LocationTree } from "src/redux/locations";
 import { CLUSTERVIZ_ROOT } from "src/routes/visualization";
 import { generateLocalityRoute, getLocalityLabel } from "src/util/localities";
-import arrowUpIcon from "!!raw-loader!assets/arrowUp.svg";
+import arrowUpIcon from "assets/arrowUp.svg";
 import { trustIcon } from "src/util/trust";
 import { cockroach } from "src/js/protos";
 import InstructionsBox, {

@@ -19,7 +19,10 @@ import { DrawerComponent } from "../drawer";
 import { trackTableSort } from "src/util/analytics";
 
 import styles from "./sortabletable.module.styl";
-import { Spin, Icon } from "antd";
+import Spin from "antd/es/spin";
+import "antd/es/spin/style";
+import Icon from "antd/es/icon";
+import "antd/es/icon/style"
 import SpinIcon from "src/components/icon/spin";
 
 const cx = classNames.bind(styles);

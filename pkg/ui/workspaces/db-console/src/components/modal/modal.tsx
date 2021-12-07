@@ -9,7 +9,8 @@
 // licenses/APL.txt.
 
 import React from "react";
-import { Modal as AntModal } from "antd";
+import AntModal from "antd/es/modal";
+import "antd/es/modal/style";
 import { Button, Text, TextTypes } from "src/components";
 import "./modal.styl";
 

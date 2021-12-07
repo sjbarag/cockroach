@@ -8,7 +8,8 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { Tooltip } from "antd";
+import Tooltip from "antd/es/tooltip";
+import "antd/es/tooltip/style";
 import React from "react";
 import { AbstractTooltipProps } from "antd/es/tooltip";
 import classNames from "classnames/bind";

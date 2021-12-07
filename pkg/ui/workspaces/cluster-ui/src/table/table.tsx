@@ -9,7 +9,10 @@
 // licenses/APL.txt.
 
 import React from "react";
-import { Table as AntTable, ConfigProvider } from "antd";
+import AntTable from "antd/es/table";
+import "antd/es/table/style";
+import ConfigProvider from "antd/es/config-provider";
+import "antd/es/config-provider/style";
 import { ColumnProps } from "antd/lib/table";
 import classnames from "classnames/bind";
 import styles from "./table.module.scss";

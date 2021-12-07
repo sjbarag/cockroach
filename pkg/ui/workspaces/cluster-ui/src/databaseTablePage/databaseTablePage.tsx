@@ -9,7 +9,12 @@
 // licenses/APL.txt.
 
 import React from "react";
-import { Col, Row, Tabs } from "antd";
+import Col from "antd/es/col";
+import "antd/es/col/style";
+import Row from "antd/es/row";
+import "antd/es/row/style";
+import Tabs from "antd/es/tabs";
+import "antd/es/tabs/style";
 import classNames from "classnames/bind";
 import _ from "lodash";
 import { Tooltip } from "antd";

@@ -26,7 +26,8 @@ import { TerminateSessionModalRef } from "./terminateSessionModal";
 import { TerminateQueryModalRef } from "./terminateQueryModal";
 import { ColumnDescriptor, SortedTable } from "src/sortedtable/sortedtable";
 
-import { Icon } from "antd";
+import Icon from "antd/es/icon";
+import "antd/es/icon/style";
 import {
   Dropdown,
   DropdownOption as DropdownItem,

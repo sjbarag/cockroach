@@ -9,7 +9,18 @@
 // licenses/APL.txt.
 
 import React, { useState } from "react";
-import { Alert, DatePicker, Form, Input, Popover, TimePicker } from "antd";
+import Alert from "antd/es/alert";
+import "antd/es/alert/style";
+import DatePicker from "antd/es/date-picker";
+import "antd/es/date-picker/style";
+import Form from "antd/es/form";
+import "antd/es/form/style";
+import Input from "antd/es/input";
+import "antd/es/input/style";
+import Popover from "antd/es/popover";
+import "antd/es/popover/style";
+import TimePicker from "antd/es/time-picker";
+import "antd/es/time-picker/style";
 import moment, { Moment } from "moment";
 import classNames from "classnames/bind";
 import { Time as TimeIcon, ErrorCircleFilled } from "@cockroachlabs/icons";

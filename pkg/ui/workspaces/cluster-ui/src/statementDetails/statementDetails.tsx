@@ -8,7 +8,12 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { Col, Row, Tabs } from "antd";
+import Col from "antd/es/col";
+import "antd/es/col/style";
+import Row from "antd/es/row";
+import "antd/es/row/style";
+import Tabs from "antd/es/tabs";
+import "antd/es/tabs/style";
 import { Text, Heading } from "@cockroachlabs/ui-components";
 import _ from "lodash";
 import React, { ReactNode } from "react";
@@ -57,8 +62,8 @@ import {
   StatementsSortedTable,
 } from "src/statementsTable";
 import { DiagnosticsView } from "./diagnostics/diagnosticsView";
-import sortedTableStyles from "src/sortedtable/sortedtable.module.scss";
-import summaryCardStyles from "src/summaryCard/summaryCard.module.scss";
+import sortedTableStyles from "../sortedtable/sortedtable.module.scss";
+import summaryCardStyles from "../summaryCard/summaryCard.module.scss";
 import styles from "./statementDetails.module.scss";
 import { commonStyles } from "src/common";
 import { NodeSummaryStats } from "../nodes";

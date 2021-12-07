@@ -18,7 +18,7 @@ import UserAvatar from "src/views/shared/components/userAvatar";
 import UserMenu from "src/views/app/components/userMenu";
 import { doLogout, LoginState, selectLoginState } from "src/redux/login";
 
-import unlockedIcon from "!!raw-loader!assets/unlocked.svg";
+import unlockedIcon from "assets/unlocked.svg";
 import "./loginIndicator.styl";
 
 interface LoginIndicatorProps {

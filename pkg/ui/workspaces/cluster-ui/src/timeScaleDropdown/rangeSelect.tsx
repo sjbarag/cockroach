@@ -9,7 +9,10 @@
 // licenses/APL.txt.
 
 import React, { useState, useRef } from "react";
-import { Button, Dropdown } from "antd";
+import Button from "antd/es/button";
+import "antd/es/button/style";
+import Dropdown from "antd/es/dropdown";
+import "antd/es/dropdown/style";
 import moment, { Moment } from "moment";
 import { DateRangeMenu } from "src/dateRange";
 import { CaretDown } from "src/icon/caretDown";

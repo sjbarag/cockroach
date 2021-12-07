@@ -14,7 +14,7 @@ import { generateLocalityRoute } from "src/util/localities";
 import { LocalityTier } from "src/redux/localities";
 import { util } from "@cockroachlabs/cluster-ui";
 import { getLocalityLabel } from "src/util/localities";
-import mapPinIcon from "!!raw-loader!assets/mapPin.svg";
+import mapPinIcon from "assets/mapPin.svg";
 import { trustIcon } from "src/util/trust";
 import { CLUSTERVIZ_ROOT } from "src/routes/visualization";
 

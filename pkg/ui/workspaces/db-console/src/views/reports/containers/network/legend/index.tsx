@@ -8,7 +8,10 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { Divider, Tooltip } from "antd";
+import Divider from "antd/es/divider";
+import "antd/es/divider/style";
+import Tooltip from "antd/es/tooltip";
+import "antd/es/tooltip/style";
 import { Chip } from "src/views/app/components/chip";
 import Modal from "src/views/app/components/modal";
 import { getDisplayName } from "src/redux/nodes";

@@ -12,7 +12,8 @@ import React from "react";
 import classNames from "classnames";
 import "./visualizations.styl";
 import spinner from "assets/spinner.gif";
-import { Tooltip } from "antd";
+import Tooltip from "antd/es/tooltip";
+import "antd/es/tooltip/style";
 
 interface VisualizationProps {
   title: string;

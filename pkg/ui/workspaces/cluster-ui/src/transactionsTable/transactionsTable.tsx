@@ -47,7 +47,7 @@ import {
   statementFingerprintIdsToSummarizedText,
 } from "../transactionsPage/utils";
 import classNames from "classnames/bind";
-import statsTablePageStyles from "src/statementsTable/statementsTableContent.module.scss";
+import statsTablePageStyles from "../statementsTable/statementsTableContent.module.scss";
 
 type Transaction = protos.cockroach.server.serverpb.StatementsResponse.IExtendedCollectedTransactionStatistics;
 type Statement = protos.cockroach.server.serverpb.StatementsResponse.ICollectedStatementStatistics;

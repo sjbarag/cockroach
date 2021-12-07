@@ -8,7 +8,10 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { Checkbox, Select } from "antd";
+import Checkbox from "antd/es/checkbox";
+import "antd/es/checkbox/style";
+import Select from "antd/es/select";
+import "antd/es/select/style";
 import Dropdown, { arrowRenderer } from "src/views/shared/components/dropdown";
 import React from "react";
 import classNames from "classnames";

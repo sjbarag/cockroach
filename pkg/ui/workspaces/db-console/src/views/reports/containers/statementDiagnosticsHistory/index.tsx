@@ -19,7 +19,7 @@ import { Anchor, Button, Text, TextTypes, Tooltip } from "src/components";
 import HeaderSection from "src/views/shared/components/headerSection";
 import { AdminUIState, AppDispatch } from "src/redux/state";
 import { trustIcon } from "src/util/trust";
-import DownloadIcon from "!!raw-loader!assets/download.svg";
+import DownloadIcon from "assets/download.svg";
 import {
   selectStatementDiagnosticsReports,
   selectStatementByFingerprint,
@@ -41,7 +41,7 @@ import { SortSetting } from "src/views/shared/components/sortabletable";
 import { statementDiagnostics } from "src/util/docs";
 import { summarize } from "src/util/sql/summarize";
 import { trackDownloadDiagnosticsBundle } from "src/util/analytics";
-import EmptyTableIcon from "!!url-loader!assets/emptyState/empty-table-results.svg";
+import EmptyTableIcon from "assets/emptyState/empty-table-results.svg";
 import {
   DownloadFile,
   DownloadFileRef,

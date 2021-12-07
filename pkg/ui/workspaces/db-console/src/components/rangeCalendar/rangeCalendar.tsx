@@ -11,7 +11,8 @@
 import React, { useCallback, useMemo, useState } from "react";
 import moment, { DurationInputArg1, DurationInputArg2, Moment } from "moment";
 import { noop } from "lodash";
-import { TimePicker } from "antd";
+import TimePicker  from "antd/es/time-picker";
+import "antd/es/time-picker/style";
 import { TimePickerProps } from "antd/es/time-picker";
 import RcRangeCalendar from "rc-calendar/es/RangeCalendar";
 import locale from "rc-calendar/es/locale/en_US";

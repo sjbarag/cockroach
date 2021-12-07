@@ -13,7 +13,8 @@
 
 import React, { useState, useEffect } from "react";
 import Helmet from "react-helmet";
-import { Tabs } from "antd";
+import Tabs from "antd/es/tabs";
+import "antd/es/tabs/style";
 import { commonStyles, util } from "@cockroachlabs/cluster-ui";
 import SessionsPageConnected from "src/views/sessions/sessionsPage";
 import TransactionsPageConnected from "src/views/transactions/transactionsPage";

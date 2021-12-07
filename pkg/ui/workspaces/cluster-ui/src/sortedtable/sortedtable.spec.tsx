@@ -20,7 +20,7 @@ import {
   ISortedTablePagination,
   SortSetting,
 } from "src/sortedtable";
-import styles from "src/sortabletable/sortabletable.module.scss";
+import styles from "./table.module.scss";
 
 const cx = classNames.bind(styles);
 

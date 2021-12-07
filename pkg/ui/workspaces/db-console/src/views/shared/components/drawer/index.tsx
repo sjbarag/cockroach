@@ -9,7 +9,13 @@
 // licenses/APL.txt.
 
 import React from "react";
-import { Drawer, Button, Divider } from "antd";
+import Drawer from "antd/es/drawer";
+import "antd/es/drawer/style"
+import Button from "antd/es/button";
+import "antd/es/button/style"
+import Divider from "antd/es/divider";
+import "antd/es/divider/style"
+
 import { Link } from "react-router-dom";
 import classNames from "classnames/bind";
 import styles from "./drawer.module.styl";

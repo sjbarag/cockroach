@@ -9,7 +9,10 @@
 // licenses/APL.txt.
 
 import React from "react";
-import { Alert, Icon } from "antd";
+import Alert from "antd/es/alert";
+import "antd/es/alert/style";
+import Icon from "antd/es/icon";
+import "antd/es/icon/style";
 import { Link } from "react-router-dom";
 
 import { AlertInfo, AlertLevel } from "src/redux/alerts";

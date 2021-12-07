@@ -8,7 +8,10 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { Divider, Tooltip } from "antd";
+import Divider from "antd/es/divider";
+import "antd/es/divider/style";
+import Tooltip from "antd/es/tooltip";
+import "antd/es/tooltip/style";
 import classNames from "classnames";
 import _ from "lodash";
 import { NanoToMilli } from "src/util/convert";

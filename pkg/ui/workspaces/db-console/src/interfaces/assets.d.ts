@@ -13,12 +13,8 @@ declare module "assets/*" {
   export default _;
 }
 
-declare module "!!raw-loader!*" {
+declare module "*" {
   const _: string;
   export default _;
 }
 
-declare module "!!url-loader!*" {
-  const _: string;
-  export default _;
-}

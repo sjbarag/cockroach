@@ -9,7 +9,12 @@
 // licenses/APL.txt.
 
 import React from "react";
-import { Button, Form, Input } from "antd";
+import Button from "antd/es/button";
+import "antd/es/button/style";
+import Form from "antd/es/form";
+import "antd/es/form/style";
+import Input from "antd/es/input";
+import "antd/es/input/style";
 import { InputProps } from "antd/lib/input";
 import classNames from "classnames/bind";
 import {

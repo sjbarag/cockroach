@@ -11,7 +11,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
-import externalLinkIcon from "!!raw-loader!assets/external-link.svg";
+import externalLinkIcon from "assets/external-link.svg";
 import { trustIcon } from "src/util/trust";
 import {
   singleVersionSelector,

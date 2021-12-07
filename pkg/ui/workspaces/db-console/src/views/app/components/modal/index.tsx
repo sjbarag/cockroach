@@ -8,7 +8,10 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { Modal, Button } from "antd";
+import Modal from "antd/es/modal";
+import "antd/es/modal/style";
+import Button from "antd/es/button";
+import "antd/es/button/style";
 import React, { Fragment } from "react";
 import "./styles.styl";
 import { ModalProps } from "antd/lib/modal";

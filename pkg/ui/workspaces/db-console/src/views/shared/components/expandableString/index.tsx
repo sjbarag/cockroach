@@ -13,8 +13,8 @@ import React from "react";
 
 import { trustIcon } from "src/util/trust";
 
-import collapseIcon from "!!raw-loader!assets/collapse.svg";
-import expandIcon from "!!raw-loader!assets/expand.svg";
+import collapseIcon from "assets/collapse.svg";
+import expandIcon from "assets/expand.svg";
 
 import "./expandable.styl";
 

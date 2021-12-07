@@ -360,7 +360,7 @@ CLUSTER_UI_JS := pkg/ui/cluster-ui/dist/main.js
 
 .SECONDARY: $(CLUSTER_UI_JS)
 $(CLUSTER_UI_JS): $(shell find pkg/ui/workspaces/cluster-ui/src -type f | sed 's/ /\\ /g') pkg/ui/yarn.installed pkg/ui/workspaces/db-console/src/js/protos.d.ts | bin/.submodules-initialized
-	$(NODE_RUN) -C pkg/ui/workspaces/cluster-ui yarn build
+	$(NODE_RUN) -C pkg/ui/workspaces/cluster-ui node esbuild.js
 
 .SECONDARY: pkg/ui/yarn.installed
 pkg/ui/yarn.installed: pkg/ui/package.json pkg/ui/yarn.lock | bin/.submodules-initialized
@@ -1427,7 +1427,8 @@ ui-watch ui-watch-secure: $(UI_CCL_DLLS) pkg/ui/yarn.opt.installed
   #
   # `node-run.sh` wrapper is removed because this command is supposed to be run in dev environment (not in docker of CI)
   # so it is safe to run yarn commands directly to preserve formatting and colors for outputs
-	yarn --cwd pkg/ui/workspaces/cluster-ui build:watch & \
+	# yarn --cwd pkg/ui/workspaces/cluster-ui build:watch & \
+	
 	yarn --cwd pkg/ui/workspaces/db-console webpack-dev-server --config webpack.app.js --env.dist=ccl --port $(PORT) --mode "development" $(WEBPACK_DEV_SERVER_FLAGS)
 
 .PHONY: ui-clean

@@ -8,7 +8,12 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { Button, Form, Input } from "antd";
+import Button from "antd/es/button";
+import "antd/es/button/style";
+import Form from "antd/es/form";
+import "antd/es/form/style";
+import Input from "antd/es/input";
+import "antd/es/input/style";
 import { InputProps } from "antd/lib/input";
 import CancelIcon from "assets/cancel.svg";
 import SearchIcon from "assets/search.svg";

@@ -21,8 +21,8 @@ import {
 import { sumNodeStats, LivenessStatus } from "src/redux/nodes";
 import { pluralize } from "src/util/pluralize";
 import { trustIcon } from "src/util/trust";
-import localityIcon from "!!raw-loader!assets/localityIcon.svg";
-import liveIcon from "!!raw-loader!assets/livenessIcons/live.svg";
+import localityIcon from "assets/localityIcon.svg";
+import liveIcon from "assets/livenessIcons/live.svg";
 import { Sparklines } from "src/views/clusterviz/components/nodeOrLocality/sparklines";
 import { CapacityArc } from "src/views/clusterviz/components/nodeOrLocality/capacityArc";
 import { Labels } from "src/views/clusterviz/components/nodeOrLocality/labels";

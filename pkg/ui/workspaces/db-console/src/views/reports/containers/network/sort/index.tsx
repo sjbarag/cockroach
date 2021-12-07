@@ -8,7 +8,10 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { Checkbox, Divider } from "antd";
+import Checkbox from "antd/es/checkbox";
+import "antd/es/checkbox/style";
+import Divider from "antd/es/divider";
+import "antd/es/divider/style";
 import Dropdown, { DropdownOption } from "src/views/shared/components/dropdown";
 import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";

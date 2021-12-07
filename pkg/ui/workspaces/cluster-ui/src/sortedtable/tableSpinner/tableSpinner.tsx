@@ -10,7 +10,10 @@
 
 import React from "react";
 import { Spinner } from "@cockroachlabs/icons";
-import { Spin, Icon } from "antd";
+import Spin from "antd/es/spin";
+import "antd/es/spin/style";
+import Icon from "antd/es/icon";
+import "antd/es/icon/style";
 import classNames from "classnames/bind";
 import styles from "./tableSpinner.module.scss";
 

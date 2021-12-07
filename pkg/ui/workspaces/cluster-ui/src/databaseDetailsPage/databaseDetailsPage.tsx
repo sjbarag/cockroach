@@ -10,7 +10,8 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Tooltip } from "antd";
+import Tooltip from "antd/es/tooltip";
+import "antd/es/tooltip/style";
 import classNames from "classnames/bind";
 import _ from "lodash";
 
@@ -30,7 +31,7 @@ import {
 import * as format from "src/util/format";
 
 import styles from "./databaseDetailsPage.module.scss";
-import sortableTableStyles from "src/sortedtable/sortedtable.module.scss";
+import sortableTableStyles from "../sortedtable/sortedtable.module.scss";
 import {
   baseHeadingClasses,
   statisticsClasses,

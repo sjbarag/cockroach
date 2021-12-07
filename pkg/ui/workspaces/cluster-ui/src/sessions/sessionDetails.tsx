@@ -23,7 +23,10 @@ import SQLActivityError from "../sqlActivity/errorComponent";
 
 import { TimestampToMoment } from "src/util/convert";
 import { Bytes, DATE_FORMAT } from "src/util/format";
-import { Col, Row } from "antd";
+import Col from "antd/es/col";
+import "antd/es/col/style";
+import Row from "antd/es/row";
+import "antd/es/row/style";
 
 import TerminateSessionModal, {
   TerminateSessionModalRef,
@@ -46,7 +49,7 @@ import {
 } from "src/store/terminateQuery";
 import { UIConfigState } from "src/store";
 
-import statementsPageStyles from "src/statementsPage/statementsPage.module.scss";
+import statementsPageStyles from "../statementsPage/statementsPage.module.scss";
 import styles from "./sessionDetails.module.scss";
 import classNames from "classnames/bind";
 import { commonStyles } from "src/common";

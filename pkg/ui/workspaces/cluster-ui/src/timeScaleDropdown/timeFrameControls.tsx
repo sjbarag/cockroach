@@ -10,7 +10,10 @@
 
 import React from "react";
 import classNames from "classnames/bind";
-import { Button, Tooltip } from "antd";
+import Button from "antd/es/button";
+import "antd/es/button/style";
+import Tooltip from "antd/es/tooltip";
+import "antd/es/tooltip/style";
 import { CaretLeft, CaretRight } from "@cockroachlabs/icons";
 import { ArrowDirection } from "./timeScaleTypes";
 

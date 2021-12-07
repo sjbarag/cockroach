@@ -13,7 +13,8 @@ import cn from "classnames";
 
 import { OutsideEventHandler } from "../outsideEventHandler";
 import "./dropdown.styl";
-import { Icon } from "antd";
+import Icon from "antd/es/icon";
+import "antd/es/icon/style";
 import { Button } from "src/components/button";
 
 export interface Item {

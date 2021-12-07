@@ -8,7 +8,10 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { Col, Row } from "antd";
+import Col from "antd/es/col";
+import "antd/es/col/style";
+import Row from "antd/es/Row";
+import "antd/es/row/style";
 import _ from "lodash";
 import { TimestampToMoment } from "src/util/convert";
 import Long from "long";
@@ -30,7 +33,7 @@ import { Button } from "@cockroachlabs/cluster-ui";
 import { ArrowLeft } from "@cockroachlabs/icons";
 import { DATE_FORMAT } from "src/util/format";
 import { JobStatusCell } from "./jobStatusCell";
-import "src/views/shared/components/summaryCard/styles.styl";
+import "../shared/components/summaryCard/styles.styl";
 import * as protos from "src/js/protos";
 
 interface JobsTableProps extends RouteComponentProps {

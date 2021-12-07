@@ -10,7 +10,8 @@
 
 import React, { useMemo } from "react";
 import moment from "moment";
-import { Divider } from "antd";
+import Divider from "antd/es/divider";
+import "antd/es/divider/style";
 import classNames from "classnames/bind";
 import {
   TimeRangeTitle,
