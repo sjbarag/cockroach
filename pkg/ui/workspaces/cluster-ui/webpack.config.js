@@ -13,6 +13,24 @@ const webpack = require("webpack");
 const WebpackBar = require("webpackbar");
 const MomentLocalesPlugin = require("moment-locales-webpack-plugin");
 
+console.error("=============");
+console.error("I broke this!");
+console.error("=============");
+console.error(`
+===========================
+Whoops, I broke this build.
+===========================
+
+Vanilla webpack builds are currently broken on this branch, which isn't that big of a deal.
+Benchmarking against the base commit (d039849445 (Merge #72767 #73343 #73350, 2021-12-02))
+is a little more cumbersome and slightly less representative (since babel-plugin-import
+actually needs to do some work) than I'd otherwise like it.
+
+Anyway, thanks for reading.
+Aborting.
+`.trim());
+process.exit(1);
+
 // tslint:disable:object-literal-sort-keys
 module.exports = {
   entry: path.resolve(__dirname, "./src/index.ts"),
