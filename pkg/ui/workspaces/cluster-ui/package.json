@@ -30,7 +30,6 @@
     "@babel/runtime": "^7.12.13"
   },
   "devDependencies": {
-    "@bazel/typescript": "4.1.0",
     "@babel/cli": "^7.8.3",
     "@babel/core": "^7.8.3",
     "@babel/plugin-proposal-class-properties": "^7.8.0",
@@ -40,6 +39,7 @@
     "@babel/preset-env": "^7.11.0",
     "@babel/preset-react": "^7.10.4",
     "@babel/preset-typescript": "^7.8.0",
+    "@bazel/typescript": "4.1.0",
     "@cockroachlabs/crdb-protobuf-client": "link:../db-console/src/js",
     "@cockroachlabs/eslint-config": "^0.1.11",
     "@cockroachlabs/icons": "0.3.0",
@@ -125,6 +125,7 @@
     "sass-loader": "^10.2.0",
     "sinon": "^9.0.2",
     "source-map-loader": "^0.2.4",
+    "speed-measure-webpack-plugin": "^1.5.0",
     "style-loader": "^1.1.3",
     "ts-jest": "^25.2.0",
     "typescript": "4.2.4",

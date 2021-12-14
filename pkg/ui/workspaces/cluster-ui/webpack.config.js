@@ -12,9 +12,14 @@ const path = require("path");
 const webpack = require("webpack");
 const WebpackBar = require("webpackbar");
 const MomentLocalesPlugin = require("moment-locales-webpack-plugin");
+const smwp = require("speed-measure-webpack-plugin");
+const smp = new smwp({
+  outputFormat: "humanVerbose",
+  loaderTopFiles: 10,
+});
 
 // tslint:disable:object-literal-sort-keys
-module.exports = {
+module.exports = smp.wrap({
   entry: path.resolve(__dirname, "./src/index.ts"),
 
   output: {
@@ -162,4 +167,4 @@ module.exports = {
     "redux-saga": "redux-saga",
     "redux": "redux",
   },
-}
+});
