@@ -11,7 +11,6 @@
 import React from "react";
 import _ from "lodash";
 import { mount, ReactWrapper } from "enzyme";
-import * as sinon from "sinon";
 import classNames from "classnames/bind";
 import {
   SortedTable,
@@ -96,14 +95,14 @@ describe("<SortedTable>", function() {
   });
 
   it("correctly uses onChangeSortSetting", function() {
-    const spy = sinon.spy();
+    const spy = jest.fn();
     const wrapper = makeTable([new TestRow("test", 1)], undefined, spy);
     wrapper
       .find(`th.${cx("head-wrapper__cell")}`)
       .first()
       .simulate("click");
-    expect(spy.calledOnce).toBe(true);
-    expect(spy.getCall(0).args[0]).toEqual({
+    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith({
       ascending: false,
       columnTitle: "first",
     } as SortSetting);

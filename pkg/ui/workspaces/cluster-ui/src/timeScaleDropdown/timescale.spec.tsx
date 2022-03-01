@@ -24,7 +24,7 @@ import moment from "moment";
 import { MemoryRouter } from "react-router";
 import TimeFrameControls from "./timeFrameControls";
 import RangeSelect from "./rangeSelect";
-import sinon from "sinon";
+import FakeTimers from "@sinonjs/fake-timers";
 import { TimeWindow, ArrowDirection, TimeScale } from "./timeScaleTypes";
 
 const initialEntries = [
@@ -46,7 +46,7 @@ const initialEntries = [
 
 describe("<TimeScaleDropdown>", function() {
   let state: TimeScaleDropdownProps;
-  let clock: sinon.SinonFakeTimers;
+  let clock: FakeTimers.InstalledClock;
   let currentWindow: TimeWindow;
 
   const setCurrentWindowFromTimeScale = (timeScale: TimeScale): void => {
@@ -67,7 +67,9 @@ describe("<TimeScaleDropdown>", function() {
   };
 
   beforeEach(() => {
-    clock = sinon.useFakeTimers(new Date(2020, 5, 1, 9, 28, 30));
+    clock = FakeTimers.install({
+      now: new Date(2020, 5, 1, 9, 28, 30),
+    });
     const timeScaleState = new timescale.TimeScaleState();
     setCurrentWindowFromTimeScale(timeScaleState.scale);
     state = {
@@ -77,7 +79,7 @@ describe("<TimeScaleDropdown>", function() {
   });
 
   afterEach(() => {
-    clock.restore();
+    clock.uninstall();
   });
 
   it("valid path should not redirect to 404", () => {

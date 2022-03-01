@@ -10,20 +10,16 @@
 
 import React from "react";
 import { mount } from "enzyme";
-import { createSandbox } from "sinon";
 import { MemoryRouter as Router } from "react-router-dom";
 import { StatementDetails, StatementDetailsProps } from "./statementDetails";
 import { DiagnosticsView } from "./diagnostics/diagnosticsView";
 import { getStatementDetailsPropsFixture } from "./statementDetails.fixture";
 import { Loading } from "../loading";
 
-const sandbox = createSandbox();
-
 describe("StatementDetails page", () => {
   let statementDetailsProps: StatementDetailsProps;
 
   beforeEach(() => {
-    sandbox.reset();
     statementDetailsProps = getStatementDetailsPropsFixture();
   });
 
@@ -63,7 +59,7 @@ describe("StatementDetails page", () => {
   });
 
   it("calls onTabChanged prop when selected tab is changed", () => {
-    const onTabChangeSpy = sandbox.spy();
+    const onTabChangeSpy = jest.fn();
     const wrapper = mount(
       <Router>
         <StatementDetails
@@ -79,7 +75,7 @@ describe("StatementDetails page", () => {
       .last()
       .simulate("click");
 
-    onTabChangeSpy.calledWith("execution-stats");
+    expect(onTabChangeSpy).toBeCalledWith("execution-stats");
   });
 
   describe("Diagnostics tab", () => {
@@ -89,8 +85,9 @@ describe("StatementDetails page", () => {
       ]).toString();
     });
 
-    it("calls createStatementDiagnosticsReport callback on Activate button click", () => {
-      const onDiagnosticsActivateClickSpy = sandbox.spy();
+    // FIXME(barag) - sinon-based test didn't assert anything on the result of calledOnceWith
+    it.skip("calls createStatementDiagnosticsReport callback on Activate button click", () => {
+      const onDiagnosticsActivateClickSpy = jest.fn();
       const wrapper = mount(
         <Router>
           <StatementDetails
@@ -106,7 +103,8 @@ describe("StatementDetails page", () => {
         .first()
         .simulate("click");
 
-      onDiagnosticsActivateClickSpy.calledOnceWith(
+      expect(onDiagnosticsActivateClickSpy).toBeCalledTimes(1);
+      expect(onDiagnosticsActivateClickSpy).toBeCalledWith(
         statementDetailsProps.statement.statement,
       );
     });
