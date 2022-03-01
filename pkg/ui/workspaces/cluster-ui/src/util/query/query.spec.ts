@@ -8,7 +8,6 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { assert } from "chai";
 import { propsToQueryString, queryByName } from "./query";
 import { Location } from "history";
 
@@ -49,9 +48,9 @@ describe("Query utils", () => {
   });
   describe("queryByName", () => {
     it("get key from query", () => {
-      assert.equal(queryByName(location, "start"), "1581478532");
-      assert.equal(queryByName(location, "test"), null);
-      assert.equal(queryByName(location, undefined), null);
+      expect(queryByName(location, "start")).toEqual("1581478532");
+      expect(queryByName(location, "test")).toEqual(null);
+      expect(queryByName(location, undefined)).toEqual(null);
     });
   });
 });

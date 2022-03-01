@@ -8,7 +8,6 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { assert } from "chai";
 import Long from "long";
 
 import * as protos from "@cockroachlabs/crdb-protobuf-client";
@@ -87,19 +86,21 @@ describe("addNumericStats", () => {
       record(ab, countAB, v);
     });
 
-    assert.approximately(a.mean, 2.2, 0.0000001);
-    assert.approximately(a.mean, sumA / countA, 0.0000001);
-    assert.approximately(b.mean, sumB / countB, 0.0000001);
-    assert.approximately(ab.mean, sumAB / countAB, 0.0000001);
+    expect(Math.abs(a.mean - 2.2)).toBeLessThanOrEqual(0.0000001);
+    expect(Math.abs(a.mean - sumA / countA)).toBeLessThanOrEqual(0.0000001);
+    expect(Math.abs(b.mean - sumB / countB)).toBeLessThanOrEqual(0.0000001);
+    expect(Math.abs(ab.mean - sumAB / countAB)).toBeLessThanOrEqual(0.0000001);
 
     const combined = aggregateNumericStats(a, b, countA, countB);
 
-    assert.approximately(combined.mean, ab.mean, 0.0000001);
-    assert.approximately(combined.squared_diffs, ab.squared_diffs, 0.0000001);
+    expect(Math.abs(combined.mean - ab.mean)).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(combined.squared_diffs - ab.squared_diffs),
+    ).toBeLessThanOrEqual(0.0000001);
 
     const reversed = aggregateNumericStats(b, a, countB, countA);
 
-    assert.deepEqual(reversed, combined);
+    expect(reversed).toEqual(combined);
   });
 });
 
@@ -196,22 +197,21 @@ describe("flattenStatementStats", () => {
 
     const flattened = flattenStatementStats(stats);
 
-    assert.equal(flattened.length, stats.length);
+    expect(flattened.length).toEqual(stats.length);
 
     for (let i = 0; i < flattened.length; i++) {
-      assert.equal(flattened[i].statement, stats[i].key.key_data.query);
-      assert.equal(
-        flattened[i].statement_summary,
+      expect(flattened[i].statement).toEqual(stats[i].key.key_data.query);
+      expect(flattened[i].statement_summary).toEqual(
         stats[i].key.key_data.query_summary,
       );
-      assert.equal(flattened[i].app, stats[i].key.key_data.app);
-      assert.equal(flattened[i].distSQL, stats[i].key.key_data.distSQL);
-      assert.equal(flattened[i].vec, stats[i].key.key_data.vec);
-      assert.equal(flattened[i].full_scan, stats[i].key.key_data.full_scan);
-      assert.equal(flattened[i].failed, stats[i].key.key_data.failed);
-      assert.equal(flattened[i].node_id, stats[i].key.node_id);
+      expect(flattened[i].app).toEqual(stats[i].key.key_data.app);
+      expect(flattened[i].distSQL).toEqual(stats[i].key.key_data.distSQL);
+      expect(flattened[i].vec).toEqual(stats[i].key.key_data.vec);
+      expect(flattened[i].full_scan).toEqual(stats[i].key.key_data.full_scan);
+      expect(flattened[i].failed).toEqual(stats[i].key.key_data.failed);
+      expect(flattened[i].node_id).toEqual(stats[i].key.node_id);
 
-      assert.equal(flattened[i].stats, stats[i].stats);
+      expect(flattened[i].stats).toEqual(stats[i].stats);
     }
   });
 });
@@ -314,114 +314,100 @@ describe("combineStatementStats", () => {
     const ac_b = combineStatementStats([ac, b]);
     const bc_a = combineStatementStats([bc, a]);
 
-    assert.equal(ab_c.count.toString(), ac_b.count.toString());
-    assert.equal(ab_c.count.toString(), bc_a.count.toString());
+    expect(ab_c.count.toString()).toEqual(ac_b.count.toString());
+    expect(ab_c.count.toString()).toEqual(bc_a.count.toString());
 
-    assert.equal(
-      ab_c.first_attempt_count.toString(),
+    expect(ab_c.first_attempt_count.toString()).toEqual(
       ac_b.first_attempt_count.toString(),
     );
-    assert.equal(
-      ab_c.first_attempt_count.toString(),
+    expect(ab_c.first_attempt_count.toString()).toEqual(
       bc_a.first_attempt_count.toString(),
     );
 
-    assert.equal(ab_c.max_retries.toString(), ac_b.max_retries.toString());
-    assert.equal(ab_c.max_retries.toString(), bc_a.max_retries.toString());
+    expect(ab_c.max_retries.toString()).toEqual(ac_b.max_retries.toString());
+    expect(ab_c.max_retries.toString()).toEqual(bc_a.max_retries.toString());
 
-    assert.approximately(ab_c.num_rows.mean, ac_b.num_rows.mean, 0.0000001);
-    assert.approximately(ab_c.num_rows.mean, bc_a.num_rows.mean, 0.0000001);
-    assert.approximately(
-      ab_c.num_rows.squared_diffs,
-      ac_b.num_rows.squared_diffs,
-      0.0000001,
-    );
-    assert.approximately(
-      ab_c.num_rows.squared_diffs,
-      bc_a.num_rows.squared_diffs,
-      0.0000001,
-    );
+    expect(
+      Math.abs(ab_c.num_rows.mean - ac_b.num_rows.mean),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.num_rows.mean - bc_a.num_rows.mean),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.num_rows.squared_diffs - ac_b.num_rows.squared_diffs),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.num_rows.squared_diffs - bc_a.num_rows.squared_diffs),
+    ).toBeLessThanOrEqual(0.0000001);
 
-    assert.approximately(ab_c.parse_lat.mean, ac_b.parse_lat.mean, 0.0000001);
-    assert.approximately(ab_c.parse_lat.mean, bc_a.parse_lat.mean, 0.0000001);
-    assert.approximately(
-      ab_c.parse_lat.squared_diffs,
-      ac_b.parse_lat.squared_diffs,
-      0.0000001,
-    );
-    assert.approximately(
-      ab_c.parse_lat.squared_diffs,
-      bc_a.parse_lat.squared_diffs,
-      0.0000001,
-    );
+    expect(
+      Math.abs(ab_c.parse_lat.mean - ac_b.parse_lat.mean),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.parse_lat.mean - bc_a.parse_lat.mean),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.parse_lat.squared_diffs - ac_b.parse_lat.squared_diffs),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.parse_lat.squared_diffs - bc_a.parse_lat.squared_diffs),
+    ).toBeLessThanOrEqual(0.0000001);
 
-    assert.approximately(ab_c.plan_lat.mean, ac_b.plan_lat.mean, 0.0000001);
-    assert.approximately(ab_c.plan_lat.mean, bc_a.plan_lat.mean, 0.0000001);
-    assert.approximately(
-      ab_c.plan_lat.squared_diffs,
-      ac_b.plan_lat.squared_diffs,
-      0.0000001,
-    );
-    assert.approximately(
-      ab_c.plan_lat.squared_diffs,
-      bc_a.plan_lat.squared_diffs,
-      0.0000001,
-    );
+    expect(
+      Math.abs(ab_c.plan_lat.mean - ac_b.plan_lat.mean),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.plan_lat.mean - bc_a.plan_lat.mean),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.plan_lat.squared_diffs - ac_b.plan_lat.squared_diffs),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.plan_lat.squared_diffs - bc_a.plan_lat.squared_diffs),
+    ).toBeLessThanOrEqual(0.0000001);
 
-    assert.approximately(ab_c.run_lat.mean, ac_b.run_lat.mean, 0.0000001);
-    assert.approximately(ab_c.run_lat.mean, bc_a.run_lat.mean, 0.0000001);
-    assert.approximately(
-      ab_c.run_lat.squared_diffs,
-      ac_b.run_lat.squared_diffs,
+    expect(Math.abs(ab_c.run_lat.mean - ac_b.run_lat.mean)).toBeLessThanOrEqual(
       0.0000001,
     );
-    assert.approximately(
-      ab_c.run_lat.squared_diffs,
-      bc_a.run_lat.squared_diffs,
+    expect(Math.abs(ab_c.run_lat.mean - bc_a.run_lat.mean)).toBeLessThanOrEqual(
       0.0000001,
     );
+    expect(
+      Math.abs(ab_c.run_lat.squared_diffs - ac_b.run_lat.squared_diffs),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.run_lat.squared_diffs - bc_a.run_lat.squared_diffs),
+    ).toBeLessThanOrEqual(0.0000001);
 
-    assert.approximately(
-      ab_c.service_lat.mean,
-      ac_b.service_lat.mean,
-      0.0000001,
-    );
-    assert.approximately(
-      ab_c.service_lat.mean,
-      bc_a.service_lat.mean,
-      0.0000001,
-    );
-    assert.approximately(
-      ab_c.service_lat.squared_diffs,
-      ac_b.service_lat.squared_diffs,
-      0.0000001,
-    );
-    assert.approximately(
-      ab_c.service_lat.squared_diffs,
-      bc_a.service_lat.squared_diffs,
-      0.0000001,
-    );
+    expect(
+      Math.abs(ab_c.service_lat.mean - ac_b.service_lat.mean),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.service_lat.mean - bc_a.service_lat.mean),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.service_lat.squared_diffs - ac_b.service_lat.squared_diffs),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.service_lat.squared_diffs - bc_a.service_lat.squared_diffs),
+    ).toBeLessThanOrEqual(0.0000001);
 
-    assert.approximately(
-      ab_c.overhead_lat.mean,
-      ac_b.overhead_lat.mean,
-      0.0000001,
-    );
-    assert.approximately(
-      ab_c.overhead_lat.mean,
-      bc_a.overhead_lat.mean,
-      0.0000001,
-    );
-    assert.approximately(
-      ab_c.overhead_lat.squared_diffs,
-      ac_b.overhead_lat.squared_diffs,
-      0.0000001,
-    );
-    assert.approximately(
-      ab_c.overhead_lat.squared_diffs,
-      bc_a.overhead_lat.squared_diffs,
-      0.0000001,
-    );
+    expect(
+      Math.abs(ab_c.overhead_lat.mean - ac_b.overhead_lat.mean),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(ab_c.overhead_lat.mean - bc_a.overhead_lat.mean),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(
+        ab_c.overhead_lat.squared_diffs - ac_b.overhead_lat.squared_diffs,
+      ),
+    ).toBeLessThanOrEqual(0.0000001);
+    expect(
+      Math.abs(
+        ab_c.overhead_lat.squared_diffs - bc_a.overhead_lat.squared_diffs,
+      ),
+    ).toBeLessThanOrEqual(0.0000001);
   });
 
   describe("when sensitiveInfo has data", () => {
@@ -442,7 +428,7 @@ describe("combineStatementStats", () => {
       ) {
         const stats = input.map(sensitiveInfo => randomStats(sensitiveInfo));
         const result = combineStatementStats(stats);
-        assert.deepEqual(result.sensitive_info, expected);
+        expect(result.sensitive_info).toEqual(expected);
       }
 
       assertSensitiveInfoInCombineStatementStats([empty], empty);

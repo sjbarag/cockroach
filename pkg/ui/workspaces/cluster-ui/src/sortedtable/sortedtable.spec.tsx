@@ -10,7 +10,6 @@
 
 import React from "react";
 import _ from "lodash";
-import { assert } from "chai";
 import { mount, ReactWrapper } from "enzyme";
 import * as sinon from "sinon";
 import classNames from "classnames/bind";
@@ -88,14 +87,12 @@ function rowsOf(wrapper: ReactWrapper): Array<Array<string>> {
 describe("<SortedTable>", function() {
   it("renders the expected table structure.", function() {
     const wrapper = makeTable([new TestRow("test", 1)]);
-    assert.lengthOf(wrapper.find("table"), 1, "one table");
-    assert.lengthOf(wrapper.find("thead").find("tr"), 1, "one header row");
-    assert.lengthOf(
-      wrapper.find(`tr.${cx("head-wrapper__row--header")}`),
+    expect(wrapper.find("table").length).toBe(1);
+    expect(wrapper.find("thead").find("tr").length).toBe(1);
+    expect(wrapper.find(`tr.${cx("head-wrapper__row--header")}`).length).toBe(
       1,
-      "column header row",
     );
-    assert.lengthOf(wrapper.find("tbody"), 1, "tbody element");
+    expect(wrapper.find("tbody").length).toBe(1);
   });
 
   it("correctly uses onChangeSortSetting", function() {
@@ -105,8 +102,8 @@ describe("<SortedTable>", function() {
       .find(`th.${cx("head-wrapper__cell")}`)
       .first()
       .simulate("click");
-    assert.isTrue(spy.calledOnce);
-    assert.deepEqual(spy.getCall(0).args[0], {
+    expect(spy.calledOnce).toBe(true);
+    expect(spy.getCall(0).args[0]).toEqual({
       ascending: false,
       columnTitle: "first",
     } as SortSetting);
@@ -124,22 +121,18 @@ describe("<SortedTable>", function() {
       const rows = wrapper.find("tbody");
       _.each(expected, (rowData, dataIndex) => {
         const row = rows.childAt(dataIndex);
-        assert.equal(
+        expect(
           row
             .childAt(0)
             .childAt(0)
             .text(),
-          rowData.name,
-          "first columns match",
-        );
-        assert.equal(
+        ).toEqual(rowData.name);
+        expect(
           row
             .childAt(0)
             .childAt(1)
             .text(),
-          rowData.value.toString(),
-          "second columns match",
-        );
+        ).toEqual(rowData.value.toString());
       });
     };
     assertMatches(data);
@@ -160,60 +153,44 @@ describe("<SortedTable>", function() {
   describe("with expandableConfig", function() {
     it("renders the expected table structure", function() {
       const wrapper = makeExpandableTable([new TestRow("test", 1)], undefined);
-      assert.lengthOf(wrapper.find("table"), 1, "one table");
-      assert.lengthOf(wrapper.find("thead").find("tr"), 1, "one header row");
-      assert.lengthOf(
-        wrapper.find(`tr.${cx("head-wrapper__row--header")}`),
+      expect(wrapper.find("table").length).toBe(1);
+      expect(wrapper.find("thead").find("tr").length).toBe(1);
+      expect(wrapper.find(`tr.${cx("head-wrapper__row--header")}`).length).toBe(
         1,
-        "column header row",
       );
-      assert.lengthOf(wrapper.find("tbody"), 1, "tbody element");
-      assert.lengthOf(wrapper.find("tbody tr"), 1, "one body row");
-      assert.lengthOf(
-        wrapper.find("tbody td"),
-        3,
-        "two body cells plus one expansion control cell",
-      );
-      assert.lengthOf(
-        wrapper.find(`td.${cx("row-wrapper__cell__expansion-control")}`),
-        1,
-        "one expansion control cell",
-      );
+      expect(wrapper.find("tbody").length).toBe(1);
+      expect(wrapper.find("tbody tr").length).toBe(1);
+      expect(wrapper.find("tbody td").length).toBe(3);
+      expect(
+        wrapper.find(`td.${cx("row-wrapper__cell__expansion-control")}`).length,
+      ).toBe(1);
     });
 
     it("expands and collapses the clicked row", function() {
       const wrapper = makeExpandableTable([new TestRow("test", 1)], undefined);
-      assert.lengthOf(
-        wrapper.find(`.${cx("row-wrapper__row--expanded-area")}`),
-        0,
-        "nothing expanded yet",
-      );
+      expect(
+        wrapper.find(`.${cx("row-wrapper__row--expanded-area")}`).length,
+      ).toBe(0);
       wrapper
         .find(`.${cx("row-wrapper__cell__expansion-control")}`)
         .simulate("click");
       const expandedArea = wrapper.find(".row-wrapper__row--expanded-area");
-      assert.lengthOf(expandedArea, 1, "row is expanded");
-      assert.lengthOf(
-        expandedArea.children(),
-        2,
-        "expanded row contains placeholder and content area",
-      );
-      assert.isTrue(expandedArea.contains(<td />));
-      assert.isTrue(
+      expect(expandedArea.length).toBe(1);
+      expect(expandedArea.children().length).toBe(2);
+      expect(expandedArea.contains(<td />)).toBe(true);
+      expect(
         expandedArea.contains(
           <td className={cx("row-wrapper__cell")} colSpan={2}>
             <div>test=1</div>
           </td>,
         ),
-      );
+      ).toBe(true);
       wrapper
         .find(`.${cx("row-wrapper__cell__expansion-control")}`)
         .simulate("click");
-      assert.lengthOf(
-        wrapper.find(`.${cx("row-wrapper__row--expanded-area")}`),
-        0,
-        "row collapsed again",
-      );
+      expect(
+        wrapper.find(`.${cx("row-wrapper__row--expanded-area")}`).length,
+      ).toBe(0);
     });
   });
 
@@ -229,32 +206,28 @@ describe("<SortedTable>", function() {
       pageSize: 2,
     });
     let rows = wrapper.find("tbody");
-    assert.lengthOf(wrapper.find("tbody tr"), 2, "two body rows");
-    assert.equal(
+    expect(wrapper.find("tbody tr").length).toBe(2);
+    expect(
       rows
         .childAt(1)
         .childAt(0)
         .childAt(0)
         .text(),
-      "d",
-      "second row column at first page match",
-    );
+    ).toEqual("d");
 
     wrapper = makeTable(data, undefined, undefined, {
       current: 2,
       pageSize: 2,
     });
     rows = wrapper.find("tbody");
-    assert.lengthOf(wrapper.find("tbody tr"), 2, "two body rows");
-    assert.equal(
+    expect(wrapper.find("tbody tr").length).toBe(2);
+    expect(
       rows
         .childAt(0)
         .childAt(0)
         .childAt(0)
         .text(),
-      "a",
-      "first row column at seconds page match",
-    );
+    ).toEqual("a");
 
     wrapper = makeTable(
       data,
@@ -266,15 +239,13 @@ describe("<SortedTable>", function() {
       },
     );
     rows = wrapper.find("tbody");
-    assert.equal(
+    expect(
       rows
         .childAt(1)
         .childAt(0)
         .childAt(0)
         .text(),
-      "b",
-      "second row column at first page match",
-    );
+    ).toEqual("b");
 
     wrapper = makeTable(
       data,
@@ -286,15 +257,13 @@ describe("<SortedTable>", function() {
       },
     );
     rows = wrapper.find("tbody");
-    assert.equal(
+    expect(
       rows
         .childAt(0)
         .childAt(0)
         .childAt(0)
         .text(),
-      "c",
-      "first row column at seconds page match",
-    );
+    ).toEqual("c");
   });
 
   it("should update when pagination changes", function() {
@@ -313,14 +282,14 @@ describe("<SortedTable>", function() {
       },
     );
 
-    assert.deepEqual(rowsOf(table.find("tbody")), [
+    expect(rowsOf(table.find("tbody"))).toEqual([
       ["c", "3"],
       ["d", "4"],
     ]);
 
     table.setProps({ pagination: { current: 2, pageSize: 2 } });
 
-    assert.deepEqual(rowsOf(table.find("tbody")), [
+    expect(rowsOf(table.find("tbody"))).toEqual([
       ["a", "1"],
       ["b", "2"],
     ]);

@@ -10,7 +10,6 @@
 
 import React from "react";
 import { mount } from "enzyme";
-import { assert } from "chai";
 import { createSandbox } from "sinon";
 import { MemoryRouter as Router } from "react-router-dom";
 import { StatementDetails, StatementDetailsProps } from "./statementDetails";
@@ -37,13 +36,13 @@ describe("StatementDetails page", () => {
         <StatementDetails {...statementDetailsProps} />
       </Router>,
     );
-    assert.isTrue(wrapper.find(Loading).prop("loading"));
-    assert.isFalse(
+    expect(wrapper.find(Loading).prop("loading")).toBe(true);
+    expect(
       wrapper
         .find(StatementDetails)
         .find("div.ant-tabs-tab")
         .exists(),
-    );
+    ).toBe(false);
   });
 
   it("shows error alert when `lastError` is not null", () => {
@@ -54,13 +53,13 @@ describe("StatementDetails page", () => {
         <StatementDetails {...statementDetailsProps} />
       </Router>,
     );
-    assert.isNotNull(wrapper.find(Loading).prop("error"));
-    assert.isFalse(
+    expect(wrapper.find(Loading).prop("error")).not.toBeNull();
+    expect(
       wrapper
         .find(StatementDetails)
         .find("div.ant-tabs-tab")
         .exists(),
-    );
+    ).toBe(false);
   });
 
   it("calls onTabChanged prop when selected tab is changed", () => {

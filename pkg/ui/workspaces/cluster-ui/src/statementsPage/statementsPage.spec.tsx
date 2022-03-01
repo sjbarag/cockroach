@@ -9,7 +9,6 @@
 // licenses/APL.txt.
 
 import React from "react";
-import { assert } from "chai";
 import { ReactWrapper, mount } from "enzyme";
 import { MemoryRouter } from "react-router-dom";
 
@@ -39,11 +38,10 @@ describe("StatementsPage", () => {
       > = rootWrapper.find(StatementsPage).first();
       const statementsPageInstance = statementsPageWrapper.instance();
 
-      assert.equal(
-        statementsPageInstance.props.sortSetting.columnTitle,
+      expect(statementsPageInstance.props.sortSetting.columnTitle).toEqual(
         "executionCount",
       );
-      assert.equal(statementsPageInstance.props.sortSetting.ascending, false);
+      expect(statementsPageInstance.props.sortSetting.ascending).toEqual(false);
     });
   });
 
@@ -101,10 +99,10 @@ describe("StatementsPage", () => {
       },
     };
 
-    assert.equal(filterBySearchQuery(statement, "select"), true);
-    assert.equal(filterBySearchQuery(statement, "virtual table"), true);
-    assert.equal(filterBySearchQuery(statement, "group (scalar)"), true);
-    assert.equal(filterBySearchQuery(statement, "node_build_info"), false);
-    assert.equal(filterBySearchQuery(statement, "crdb_internal"), false);
+    expect(filterBySearchQuery(statement, "select")).toEqual(true);
+    expect(filterBySearchQuery(statement, "virtual table")).toEqual(true);
+    expect(filterBySearchQuery(statement, "group (scalar)")).toEqual(true);
+    expect(filterBySearchQuery(statement, "node_build_info")).toEqual(false);
+    expect(filterBySearchQuery(statement, "crdb_internal")).toEqual(false);
   });
 });

@@ -8,7 +8,6 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { assert } from "chai";
 import { summarize, computeOrUseStmtSummary } from "./summarize";
 
 describe("summarize", () => {
@@ -49,7 +48,7 @@ describe("summarize", () => {
       ];
 
       simpleStatements.forEach(s =>
-        assert.equal(s.type, summarize(s.stmt).statement),
+        expect(s.type).toEqual(summarize(s.stmt).statement),
       );
     });
 
@@ -73,7 +72,7 @@ describe("summarize", () => {
       ];
 
       simpleStatements.forEach(s =>
-        assert.equal(s.type, summarize(s.stmt).statement),
+        expect(s.type).toEqual(summarize(s.stmt).statement),
       );
     });
   });
@@ -103,7 +102,7 @@ describe("summarize", () => {
       ];
 
       simpleStatements.forEach(s =>
-        assert.equal(s.summary, computeOrUseStmtSummary(s.stmt, s.summary)),
+        expect(s.summary).toEqual(computeOrUseStmtSummary(s.stmt, s.summary)),
       );
     });
 
@@ -131,7 +130,7 @@ describe("summarize", () => {
       ];
 
       simpleStatements.forEach(s =>
-        assert.equal(s.expected, computeOrUseStmtSummary(s.stmt, s.summary)),
+        expect(s.expected).toEqual(computeOrUseStmtSummary(s.stmt, s.summary)),
       );
     });
   });

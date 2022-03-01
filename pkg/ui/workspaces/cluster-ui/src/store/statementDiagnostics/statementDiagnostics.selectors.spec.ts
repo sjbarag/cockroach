@@ -8,7 +8,6 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { assert } from "chai";
 import { selectDiagnosticsReportsPerStatement } from "./statementDiagnostics.selectors";
 import Long from "long";
 import { cockroach } from "@cockroachlabs/crdb-protobuf-client";
@@ -44,8 +43,7 @@ describe("statementDiagnostics selectors", () => {
       const diagnosticsPerStatement = selectDiagnosticsReportsPerStatement.resultFunc(
         reports,
       );
-      assert.deepEqual(
-        diagnosticsPerStatement["SHOW database"][0].id,
+      expect(diagnosticsPerStatement["SHOW database"][0].id).toEqual(
         Long.fromNumber(3),
       );
     });

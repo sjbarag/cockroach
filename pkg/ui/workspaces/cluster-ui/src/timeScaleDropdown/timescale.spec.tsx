@@ -24,7 +24,6 @@ import moment from "moment";
 import { MemoryRouter } from "react-router";
 import TimeFrameControls from "./timeFrameControls";
 import RangeSelect from "./rangeSelect";
-import { assert } from "chai";
 import sinon from "sinon";
 import { TimeWindow, ArrowDirection, TimeScale } from "./timeScaleTypes";
 
@@ -83,8 +82,8 @@ describe("<TimeScaleDropdown>", function() {
 
   it("valid path should not redirect to 404", () => {
     const wrapper = makeTimeScaleDropdown(state);
-    assert.equal(wrapper.find(RangeSelect).length, 1);
-    assert.equal(wrapper.find(TimeFrameControls).length, 1);
+    expect(wrapper.find(RangeSelect).length).toEqual(1);
+    expect(wrapper.find(TimeFrameControls).length).toEqual(1);
   });
 
   it("Past 10 minutes must be render", () => {
@@ -95,21 +94,20 @@ describe("<TimeScaleDropdown>", function() {
       ...defaultTimeScaleOptions["Past 10 Minutes"],
       fixedWindowEnd: false,
     };
-    assert.deepEqual(wrapper.props().currentScale, expected);
+    expect(wrapper.props().currentScale).toEqual(expected);
   });
 
   it("getTimeRangeTitle must return title Past 10 Minutes", () => {
     const wrapper = makeTimeScaleDropdown(state);
-    assert.equal(
+    expect(
       wrapper
         .find(".trigger .Select-value-label")
         .first()
         .text(),
-      "Past 10 Minutes",
-    );
+    ).toEqual("Past 10 Minutes");
 
     const title = getTimeRangeTitle(currentWindow, state.currentScale);
-    assert.deepEqual(title, { title: "Past 10 Minutes", timeLabel: "10m" });
+    expect(title).toEqual({ title: "Past 10 Minutes", timeLabel: "10m" });
   });
 
   describe("getTimeRangeTitle", () => {
@@ -119,14 +117,13 @@ describe("<TimeScaleDropdown>", function() {
       const timeStart = moment.utc(currentWindow.start).format(timeFormat);
       const timeEnd = moment.utc(currentWindow.end).format(timeFormat);
       const wrapper = makeTimeScaleDropdown({ ...state, currentScale });
-      assert.equal(
+      expect(
         wrapper
           .find(".trigger .Select-value-label")
           .first()
           .text(),
-        ` ${timeStart} -  ${timeEnd} (UTC)`,
-      );
-      assert.deepEqual(title, {
+      ).toEqual(` ${timeStart} -  ${timeEnd} (UTC)`);
+      expect(title).toEqual({
         dateStart: "",
         dateEnd: "",
         timeStart,
@@ -159,14 +156,13 @@ describe("<TimeScaleDropdown>", function() {
         ...state,
         currentScale,
       });
-      assert.equal(
+      expect(
         wrapper
           .find(".trigger .Select-value-label")
           .first()
           .text(),
-        `${dateStart} ${timeStart} - ${dateEnd} ${timeEnd} (UTC)`,
-      );
-      assert.deepEqual(title, {
+      ).toEqual(`${dateStart} ${timeStart} - ${dateEnd} ${timeEnd} (UTC)`);
+      expect(title).toEqual({
         dateStart,
         dateEnd,
         timeStart,
@@ -180,8 +176,10 @@ describe("<TimeScaleDropdown>", function() {
   it("generateDisabledArrows must return array with disabled buttons", () => {
     const arrows = generateDisabledArrows(currentWindow);
     const wrapper = makeTimeScaleDropdown(state);
-    assert.equal(wrapper.find(".controls-content ._action.disabled").length, 2);
-    assert.deepEqual(arrows, [ArrowDirection.CENTER, ArrowDirection.RIGHT]);
+    expect(wrapper.find(".controls-content ._action.disabled").length).toEqual(
+      2,
+    );
+    expect(arrows).toEqual([ArrowDirection.CENTER, ArrowDirection.RIGHT]);
   });
 
   it("generateDisabledArrows must render 3 active buttons and return empty array", () => {
@@ -198,8 +196,10 @@ describe("<TimeScaleDropdown>", function() {
       ...state,
       currentScale: currentTimeScale,
     });
-    assert.equal(wrapper.find(".controls-content ._action.disabled").length, 0);
-    assert.deepEqual(arrows, []);
+    expect(wrapper.find(".controls-content ._action.disabled").length).toEqual(
+      0,
+    );
+    expect(arrows).toEqual([]);
   });
 });
 
@@ -207,54 +207,50 @@ describe("timescale utils", (): void => {
   describe("findClosestTimeScale", () => {
     it("should find the correct time scale", () => {
       // `seconds` != window size of any of the default options, `startSeconds` not specified.
-      assert.deepEqual(findClosestTimeScale(defaultTimeScaleOptions, 15), {
+      expect(findClosestTimeScale(defaultTimeScaleOptions, 15)).toEqual({
         ...defaultTimeScaleOptions["Past 10 Minutes"],
         key: "Custom",
       });
       // `seconds` != window size of any of the default options, `startSeconds` not specified.
-      assert.deepEqual(
+      expect(
         findClosestTimeScale(
           defaultTimeScaleOptions,
           moment.duration(moment().daysInMonth() * 5, "days").asSeconds(),
         ),
-        { ...defaultTimeScaleOptions["Past 2 Months"], key: "Custom" },
-      );
+      ).toEqual({ ...defaultTimeScaleOptions["Past 2 Months"], key: "Custom" });
       // `seconds` == window size of one of the default options, `startSeconds` not specified.
-      assert.deepEqual(
+      expect(
         findClosestTimeScale(
           defaultTimeScaleOptions,
           moment.duration(10, "minutes").asSeconds(),
         ),
-        {
-          ...defaultTimeScaleOptions["Past 10 Minutes"],
-          key: "Past 10 Minutes",
-        },
-      );
+      ).toEqual({
+        ...defaultTimeScaleOptions["Past 10 Minutes"],
+        key: "Past 10 Minutes",
+      });
       // `seconds` == window size of one of the default options, `startSeconds` not specified.
-      assert.deepEqual(
+      expect(
         findClosestTimeScale(
           defaultTimeScaleOptions,
           moment.duration(14, "days").asSeconds(),
         ),
-        {
-          ...defaultTimeScaleOptions["Past 2 Weeks"],
-          key: "Past 2 Weeks",
-        },
-      );
+      ).toEqual({
+        ...defaultTimeScaleOptions["Past 2 Weeks"],
+        key: "Past 2 Weeks",
+      });
       // `seconds` == window size of one of the default options, `startSeconds` is now.
-      assert.deepEqual(
+      expect(
         findClosestTimeScale(
           defaultTimeScaleOptions,
           defaultTimeScaleOptions["Past 10 Minutes"].windowSize.asSeconds(),
           moment().unix(),
         ),
-        {
-          ...defaultTimeScaleOptions["Past 10 Minutes"],
-          key: "Past 10 Minutes",
-        },
-      );
+      ).toEqual({
+        ...defaultTimeScaleOptions["Past 10 Minutes"],
+        key: "Past 10 Minutes",
+      });
       // `seconds` == window size of one of the default options, `startSeconds` is in the past.
-      assert.deepEqual(
+      expect(
         findClosestTimeScale(
           defaultTimeScaleOptions,
           defaultTimeScaleOptions["Past 10 Minutes"].windowSize.asSeconds(),
@@ -262,8 +258,10 @@ describe("timescale utils", (): void => {
             .subtract(1, "day")
             .unix(),
         ),
-        { ...defaultTimeScaleOptions["Past 10 Minutes"], key: "Custom" },
-      );
+      ).toEqual({
+        ...defaultTimeScaleOptions["Past 10 Minutes"],
+        key: "Custom",
+      });
     });
   });
 });

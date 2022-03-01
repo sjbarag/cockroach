@@ -9,7 +9,6 @@
 // licenses/APL.txt.
 
 import React from "react";
-import { assert } from "chai";
 import { mount } from "enzyme";
 import { Spinner, InlineAlert } from "@cockroachlabs/ui-components";
 import { Loading } from "./loading";
@@ -29,7 +28,7 @@ describe("<Loading>", () => {
             render={() => <SomeComponent />}
           />,
         );
-        assert.isTrue(wrapper.find(SomeComponent).exists());
+        expect(wrapper.find(SomeComponent).exists()).toBe(true);
       });
     });
 
@@ -43,8 +42,8 @@ describe("<Loading>", () => {
             render={() => <SomeComponent />}
           />,
         );
-        assert.isFalse(wrapper.find(SomeComponent).exists());
-        assert.isTrue(wrapper.find(Spinner).exists());
+        expect(wrapper.find(SomeComponent).exists()).toBe(false);
+        expect(wrapper.find(Spinner).exists()).toBe(true);
       });
     });
   });
@@ -60,9 +59,9 @@ describe("<Loading>", () => {
             render={() => <SomeComponent />}
           />,
         );
-        assert.isFalse(wrapper.find(SomeComponent).exists());
-        assert.isFalse(wrapper.find(Spinner).exists());
-        assert.isTrue(wrapper.find(InlineAlert).exists());
+        expect(wrapper.find(SomeComponent).exists()).toBe(false);
+        expect(wrapper.find(Spinner).exists()).toBe(false);
+        expect(wrapper.find(InlineAlert).exists()).toBe(true);
       });
     });
 
@@ -76,10 +75,10 @@ describe("<Loading>", () => {
             render={() => <SomeComponent />}
           />,
         );
-        assert.isFalse(wrapper.find(SomeComponent).exists());
-        assert.isFalse(wrapper.find(Spinner).exists());
-        assert.isFalse(wrapper.find(SomeCustomErrorComponent).exists());
-        assert.isTrue(wrapper.find(InlineAlert).exists());
+        expect(wrapper.find(SomeComponent).exists()).toBe(false);
+        expect(wrapper.find(Spinner).exists()).toBe(false);
+        expect(wrapper.find(SomeCustomErrorComponent).exists()).toBe(false);
+        expect(wrapper.find(InlineAlert).exists()).toBe(true);
       });
 
       it("render custom error when provided", () => {
@@ -92,9 +91,9 @@ describe("<Loading>", () => {
             renderError={() => <SomeCustomErrorComponent />}
           />,
         );
-        assert.isFalse(wrapper.find(SomeComponent).exists());
-        assert.isFalse(wrapper.find(Spinner).exists());
-        assert.isTrue(wrapper.find(SomeCustomErrorComponent).exists());
+        expect(wrapper.find(SomeComponent).exists()).toBe(false);
+        expect(wrapper.find(Spinner).exists()).toBe(false);
+        expect(wrapper.find(SomeCustomErrorComponent).exists()).toBe(true);
       });
     });
   });
@@ -111,16 +110,16 @@ describe("<Loading>", () => {
             render={() => <SomeComponent />}
           />,
         );
-        assert.isFalse(wrapper.find(SomeComponent).exists());
-        assert.isFalse(wrapper.find(Spinner).exists());
-        assert.isTrue(wrapper.find(InlineAlert).exists());
+        expect(wrapper.find(SomeComponent).exists()).toBe(false);
+        expect(wrapper.find(Spinner).exists()).toBe(false);
+        expect(wrapper.find(InlineAlert).exists()).toBe(true);
         errors.forEach(e =>
-          assert.isTrue(
+          expect(
             wrapper
               .find(InlineAlert)
               .text()
               .includes(e.message),
-          ),
+          ).toBe(true),
         );
       });
     });
@@ -143,18 +142,18 @@ describe("<Loading>", () => {
             render={() => <SomeComponent />}
           />,
         );
-        assert.isFalse(wrapper.find(SomeComponent).exists());
-        assert.isFalse(wrapper.find(Spinner).exists());
-        assert.isTrue(wrapper.find(InlineAlert).exists());
+        expect(wrapper.find(SomeComponent).exists()).toBe(false);
+        expect(wrapper.find(Spinner).exists()).toBe(false);
+        expect(wrapper.find(InlineAlert).exists()).toBe(true);
         errors
           .filter(e => !!e)
           .forEach(e =>
-            assert.isTrue(
+            expect(
               wrapper
                 .find(InlineAlert)
                 .text()
                 .includes(e.message),
-            ),
+            ).toBe(true),
           );
       });
     });
@@ -169,9 +168,9 @@ describe("<Loading>", () => {
             render={() => <SomeComponent />}
           />,
         );
-        assert.isTrue(wrapper.find(SomeComponent).exists());
-        assert.isFalse(wrapper.find(Spinner).exists());
-        assert.isFalse(wrapper.find(InlineAlert).exists());
+        expect(wrapper.find(SomeComponent).exists()).toBe(true);
+        expect(wrapper.find(Spinner).exists()).toBe(false);
+        expect(wrapper.find(InlineAlert).exists()).toBe(false);
       });
     });
   });

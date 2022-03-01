@@ -9,7 +9,6 @@
 // licenses/APL.txt.
 
 import React from "react";
-import { assert } from "chai";
 import { shallow } from "enzyme";
 import {
   ResultsPerPageLabel,
@@ -79,8 +78,7 @@ describe("ResultsPerPageLabel", () => {
 
   testCases.forEach(tc => {
     it(tc.description, () => {
-      assert.equal(
-        shallow(<ResultsPerPageLabel {...tc.props} />).text(),
+      expect(shallow(<ResultsPerPageLabel {...tc.props} />).text()).toEqual(
         tc.expected,
       );
     });

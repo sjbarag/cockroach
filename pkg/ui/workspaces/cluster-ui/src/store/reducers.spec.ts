@@ -8,7 +8,6 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { assert } from "chai";
 import { createStore } from "redux";
 import { rootActions, rootReducer } from "./reducers";
 import { actions as sqlStatsActions } from "./sqlStats";
@@ -23,9 +22,8 @@ describe("rootReducer", () => {
     store.dispatch(rootActions.resetState());
     const resetState = store.getState();
 
-    assert.deepEqual(initState, resetState);
-    assert.notDeepEqual(
-      resetState.sqlStats.lastError,
+    expect(initState).toEqual(resetState);
+    expect(resetState.sqlStats.lastError).not.toEqual(
       changedState.sqlStats.lastError,
     );
   });

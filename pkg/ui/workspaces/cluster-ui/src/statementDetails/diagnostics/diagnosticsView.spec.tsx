@@ -9,7 +9,6 @@
 // licenses/APL.txt.
 
 import React from "react";
-import { assert } from "chai";
 import { mount, ReactWrapper } from "enzyme";
 import sinon from "sinon";
 import Long from "long";
@@ -95,7 +94,7 @@ describe("DiagnosticsView", () => {
     });
 
     it("renders Table component when diagnostics data is provided", () => {
-      assert.isTrue(wrapper.find(Table).exists());
+      expect(wrapper.find(Table).exists()).toBe(true);
     });
 
     it("opens the statement diagnostics modal when Activate button is clicked", () => {
@@ -127,7 +126,7 @@ describe("DiagnosticsView", () => {
       const activateButtonComponent = wrapper
         .findWhere(n => n.prop("children") === "Activate diagnostics")
         .first();
-      assert.isFalse(activateButtonComponent.exists());
+      expect(activateButtonComponent.exists()).toBe(false);
     });
 
     it("Cancel request button shows if diagnostics is requested and waiting query", () => {
@@ -149,7 +148,7 @@ describe("DiagnosticsView", () => {
       const cancelButtonComponent = wrapper
         .findWhere(n => n.prop("children") === "Cancel request")
         .first();
-      assert.isTrue(cancelButtonComponent.exists());
+      expect(cancelButtonComponent.exists()).toBe(true);
     });
   });
 });

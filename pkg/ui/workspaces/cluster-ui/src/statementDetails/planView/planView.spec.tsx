@@ -8,8 +8,6 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { assert } from "chai";
-
 import { cockroach } from "@cockroachlabs/crdb-protobuf-client";
 import {
   FlatPlanNode,
@@ -116,7 +114,7 @@ describe("planView", () => {
           ],
         };
 
-        assert.deepEqual(flattenTreeAttributes(node), nodeFlattened);
+        expect(flattenTreeAttributes(node)).toEqual(nodeFlattened);
       });
     });
     describe("when there are nodes with multiple attributes with the same key", () => {
@@ -157,7 +155,7 @@ describe("planView", () => {
           ],
         };
 
-        assert.deepEqual(flattenTreeAttributes(node), nodeFlattened);
+        expect(flattenTreeAttributes(node)).toEqual(nodeFlattened);
       });
     });
   });
@@ -165,16 +163,14 @@ describe("planView", () => {
   describe("flattenAttributes", () => {
     describe("when all attributes have different keys", () => {
       it("creates array with exactly one value for each attribute", () => {
-        assert.deepEqual(
-          flattenAttributes(testAttrsDistinctKeys),
+        expect(flattenAttributes(testAttrsDistinctKeys)).toEqual(
           expectedTestAttrsDistinctKeys,
         );
       });
     });
     describe("when there are multiple attributes with same key", () => {
       it("collects values into one array for same key", () => {
-        assert.deepEqual(
-          flattenAttributes(testAttrsDuplicatedKeys),
+        expect(flattenAttributes(testAttrsDuplicatedKeys)).toEqual(
           expectedTestAttrsFlattened,
         );
       });
@@ -204,7 +200,7 @@ describe("planView", () => {
           },
         ];
 
-        assert.deepEqual(flattenAttributes(testAttrs), expectedTestAttrs);
+        expect(flattenAttributes(testAttrs)).toEqual(expectedTestAttrs);
       });
     });
     describe("when keys are unsorted", () => {
@@ -245,21 +241,21 @@ describe("planView", () => {
           },
         ];
 
-        assert.deepEqual(flattenAttributes(testAttrs), expectedTestAttrs);
+        expect(flattenAttributes(testAttrs)).toEqual(expectedTestAttrs);
       });
     });
   });
 
   describe("standardizeKey", () => {
     it("should convert strings to camel case", () => {
-      assert.equal(standardizeKey("hello world"), "helloWorld");
-      assert.equal(standardizeKey("camels-are-cool"), "camelsAreCool");
-      assert.equal(standardizeKey("cockroach"), "cockroach");
+      expect(standardizeKey("hello world")).toEqual("helloWorld");
+      expect(standardizeKey("camels-are-cool")).toEqual("camelsAreCool");
+      expect(standardizeKey("cockroach")).toEqual("cockroach");
     });
 
     it("should remove '(anti)' from the key", () => {
-      assert.equal(standardizeKey("lookup join (anti)"), "lookupJoin");
-      assert.equal(standardizeKey("(anti) hello world"), "helloWorld");
+      expect(standardizeKey("lookup join (anti)")).toEqual("lookupJoin");
+      expect(standardizeKey("(anti) hello world")).toEqual("helloWorld");
     });
   });
 
@@ -281,7 +277,7 @@ describe("planView", () => {
       const expectedString =
         "Into users(id, city, name, address, credit_card) Size 5 columns, 3 rows";
 
-      assert.equal(planNodeAttrsToString(testNodeAttrs), expectedString);
+      expect(planNodeAttrsToString(testNodeAttrs)).toEqual(expectedString);
     });
   });
 
@@ -307,7 +303,7 @@ describe("planView", () => {
       const expectedString =
         "insert fast path Into users(id, city, name, address, credit_card) Size 5 columns, 3 rows";
 
-      assert.equal(planNodeToString(testPlanNode), expectedString);
+      expect(planNodeToString(testPlanNode)).toEqual(expectedString);
     });
 
     it("should recursively convert a FlatPlanNode (with children) into a string.", () => {
@@ -349,7 +345,7 @@ describe("planView", () => {
 
       const expectedString =
         "render  group (scalar)  filter filter variable = _ virtual table table cluster_settings@primary";
-      assert.equal(planNodeToString(testPlanNode), expectedString);
+      expect(planNodeToString(testPlanNode)).toEqual(expectedString);
     });
   });
 });

@@ -8,7 +8,6 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { assert } from "chai";
 import { aggregateStatementStats } from "./appStats";
 import { statementsWithSameIdButDifferentNodeId } from "./appStats.fixture";
 
@@ -17,6 +16,6 @@ describe("aggregateStatementStats", () => {
     const aggregated = aggregateStatementStats(
       statementsWithSameIdButDifferentNodeId,
     );
-    assert.equal(aggregated.length, 1);
+    expect(aggregated.length).toEqual(1);
   });
 });

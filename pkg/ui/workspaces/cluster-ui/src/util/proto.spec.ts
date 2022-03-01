@@ -8,8 +8,6 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { assert } from "chai";
-
 import { INodeStatus, rollupStoreMetrics } from "./proto";
 
 describe("Proto utils", () => {
@@ -61,8 +59,7 @@ describe("Proto utils", () => {
     });
 
     it("sums up values for every metric", () => {
-      assert.deepEqual(
-        rollupStoreMetrics(nodeStatus),
+      expect(rollupStoreMetrics(nodeStatus)).toEqual(
         statusWithRolledMetrics.metrics,
       );
     });

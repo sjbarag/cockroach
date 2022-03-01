@@ -8,7 +8,6 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
-import { assert } from "chai";
 import {
   filterTransactions,
   getStatementsByFingerprintIdAndTime,
@@ -35,9 +34,9 @@ describe("getStatementsByFingerprintIdAndTime", () => {
         { id: Long.fromInt(5554049045071304794) },
       ],
     );
-    assert.lengthOf(selectedStatements, 1);
-    assert.isTrue(
-      selectedStatements[0].id.eq(Long.fromInt(4104049045071304794)),
+    expect(selectedStatements.length).toBe(1);
+    expect(selectedStatements[0].id.eq(Long.fromInt(4104049045071304794))).toBe(
+      true,
     );
   });
 });
@@ -53,7 +52,7 @@ describe("Filter transactions", () => {
       nodes: "",
       regions: "",
     };
-    assert.equal(
+    expect(
       filterTransactions(
         txData,
         filter,
@@ -62,8 +61,7 @@ describe("Filter transactions", () => {
         nodeRegions,
         false,
       ).transactions.length,
-      4,
-    );
+    ).toEqual(4);
   });
 
   it("filters by app", () => {
@@ -74,7 +72,7 @@ describe("Filter transactions", () => {
       nodes: "",
       regions: "",
     };
-    assert.equal(
+    expect(
       filterTransactions(
         txData,
         filter,
@@ -83,8 +81,7 @@ describe("Filter transactions", () => {
         nodeRegions,
         false,
       ).transactions.length,
-      3,
-    );
+    ).toEqual(3);
   });
 
   it("filters by app exactly", () => {
@@ -95,7 +92,7 @@ describe("Filter transactions", () => {
       nodes: "",
       regions: "",
     };
-    assert.equal(
+    expect(
       filterTransactions(
         txData,
         filter,
@@ -104,8 +101,7 @@ describe("Filter transactions", () => {
         nodeRegions,
         false,
       ).transactions.length,
-      1,
-    );
+    ).toEqual(1);
   });
 
   it("filters by 2 apps", () => {
@@ -116,7 +112,7 @@ describe("Filter transactions", () => {
       nodes: "",
       regions: "",
     };
-    assert.equal(
+    expect(
       filterTransactions(
         txData,
         filter,
@@ -125,8 +121,7 @@ describe("Filter transactions", () => {
         nodeRegions,
         false,
       ).transactions.length,
-      4,
-    );
+    ).toEqual(4);
   });
 
   it("filters by internal prefix", () => {
@@ -137,7 +132,7 @@ describe("Filter transactions", () => {
       nodes: "",
       regions: "",
     };
-    assert.equal(
+    expect(
       filterTransactions(
         txData,
         filter,
@@ -146,8 +141,7 @@ describe("Filter transactions", () => {
         nodeRegions,
         false,
       ).transactions.length,
-      7,
-    );
+    ).toEqual(7);
   });
 
   it("filters by time", () => {
@@ -158,7 +152,7 @@ describe("Filter transactions", () => {
       nodes: "",
       regions: "",
     };
-    assert.equal(
+    expect(
       filterTransactions(
         txData,
         filter,
@@ -167,8 +161,7 @@ describe("Filter transactions", () => {
         nodeRegions,
         false,
       ).transactions.length,
-      8,
-    );
+    ).toEqual(8);
   });
 
   it("filters by one node", () => {
@@ -179,7 +172,7 @@ describe("Filter transactions", () => {
       nodes: "n1",
       regions: "",
     };
-    assert.equal(
+    expect(
       filterTransactions(
         txData,
         filter,
@@ -188,8 +181,7 @@ describe("Filter transactions", () => {
         nodeRegions,
         false,
       ).transactions.length,
-      6,
-    );
+    ).toEqual(6);
   });
 
   it("filters by multiple nodes", () => {
@@ -200,7 +192,7 @@ describe("Filter transactions", () => {
       nodes: "n2,n4",
       regions: "",
     };
-    assert.equal(
+    expect(
       filterTransactions(
         txData,
         filter,
@@ -209,8 +201,7 @@ describe("Filter transactions", () => {
         nodeRegions,
         false,
       ).transactions.length,
-      8,
-    );
+    ).toEqual(8);
   });
 
   it("filters by one region", () => {
@@ -221,7 +212,7 @@ describe("Filter transactions", () => {
       nodes: "",
       regions: "gcp-europe-west1",
     };
-    assert.equal(
+    expect(
       filterTransactions(
         txData,
         filter,
@@ -230,8 +221,7 @@ describe("Filter transactions", () => {
         nodeRegions,
         false,
       ).transactions.length,
-      4,
-    );
+    ).toEqual(4);
   });
 
   it("filters by multiple regions", () => {
@@ -242,7 +232,7 @@ describe("Filter transactions", () => {
       nodes: "",
       regions: "gcp-us-west1,gcp-europe-west1",
     };
-    assert.equal(
+    expect(
       filterTransactions(
         txData,
         filter,
@@ -251,8 +241,7 @@ describe("Filter transactions", () => {
         nodeRegions,
         false,
       ).transactions.length,
-      9,
-    );
+    ).toEqual(9);
   });
 });
 
@@ -283,12 +272,10 @@ describe("statementFingerprintIdsToText", () => {
       Long.fromInt(4104049045071304794),
     ];
 
-    assert.equal(
-      statementFingerprintIdsToText(statementFingerprintIds, statements),
-      `SELECT _
+    expect(statementFingerprintIdsToText(statementFingerprintIds, statements))
+      .toEqual(`SELECT _
 SELECT _, _
 SELECT _
-SELECT _`,
-    );
+SELECT _`);
   });
 });
