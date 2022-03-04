@@ -1360,6 +1360,15 @@
     "@babel/helper-validator-identifier" "^7.14.5"
     to-fast-properties "^2.0.0"
 
+"@bazel/concatjs@4.4.6":
+  version "4.4.6"
+  resolved "https://registry.yarnpkg.com/@bazel/concatjs/-/concatjs-4.4.6.tgz#842e4472f5d766a610a93ecc1315dd89a17f0cd3"
+  integrity sha512-2qt6M9G5S3gPTTB/VG8KwhTtv5w9ZqedFvOQS7yBbHHyV4UEWSxijhqHinpbJs0iKOWRbsDGE+jtRdgq8Vu+ZQ==
+  dependencies:
+    protobufjs "6.8.8"
+    source-map-support "0.5.9"
+    tsutils "3.21.0"
+
 "@bazel/typescript@4.1.0":
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@bazel/typescript/-/typescript-4.1.0.tgz#883e793c37df70c4ebc44bc4139f6008b3eb92fa"
