@@ -1,5 +1,7 @@
 const path = require("path");
 const esbuild = require("esbuild");
+const { stylusLoader } = require("esbuild-stylus-loader");
+const nib = require("nib");
 
 const DISTNAME = process.env.CRDB_OSS ? "oss" : "ccl";
 
@@ -28,5 +30,14 @@ esbuild.build({
     // HACK(barag): ignore assets loaded webpack-specific loader syntax for now
     "!!raw-loader*",
     "!!url-loader*",
-  ]
+  ],
+  plugins: [
+    stylusLoader({
+      stylusOptions: {
+        use: [
+          (stylus) => stylus.use(nib()),
+        ],
+      }
+    }),
+  ],
 }).catch(err => process.exit(err.errors.length));
