@@ -139,6 +139,10 @@ module.exports = (env, argv) => {
             {
               loader: "stylus-loader",
               options: {
+                include: [
+                  __dirname,
+                  path.normalize(path.join(__dirname, "..", "..", "node_modules")),
+                ],
                 use: [require("nib")()],
               },
             },
@@ -153,6 +157,10 @@ module.exports = (env, argv) => {
             {
               loader: "stylus-loader",
               options: {
+                include: [
+                  __dirname,
+                  path.normalize(path.join(__dirname, "..", "..", "node_modules")),
+                ],
                 use: [require("nib")()],
               },
             },
