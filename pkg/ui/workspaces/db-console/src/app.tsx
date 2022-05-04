@@ -76,7 +76,7 @@ import { RedirectToStatementDetails } from "src/routes/RedirectToStatementDetail
 import HotRangesPage from "src/views/hotRanges/index";
 import ActiveStatementDetails from "./views/statements/activeStatementDetailsConnected";
 import ActiveTransactionDetails from "./views/transactions/activeTransactionDetailsConnected";
-import "styl/app.styl";
+import "../styl/app.styl";
 import { Tracez } from "src/views/tracez/tracez";
 
 // NOTE: If you are adding a new path to the router, and that path contains any
