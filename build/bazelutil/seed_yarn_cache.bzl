@@ -23,8 +23,6 @@ def _seed_yarn_cache_impl(rctx):
 
     paths = {
         "protos": "pkg/ui/workspaces/db-console/src/js",
-        "cluster_ui": "pkg/ui/workspaces/cluster-ui",
-        "db_console": "pkg/ui/workspaces/db-console",
     }
     yarn_dir = str(rctx.path(Label("@yarn//:bin/yarn")).dirname)
     for key, path in paths.items():

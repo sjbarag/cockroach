@@ -18,6 +18,7 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/cockroachdb/cockroach/pkg/cmd/dev/io/exec"
 	"github.com/spf13/cobra"
 )
 
@@ -39,6 +40,8 @@ func makeUICmd(d *dev) *cobra.Command {
 	uiCmd.AddCommand(makeUILintCmd(d))
 	uiCmd.AddCommand(makeUITestCmd(d))
 	uiCmd.AddCommand(makeUIWatchCmd(d))
+	uiCmd.AddCommand(makeUILinkCmd(d))
+	uiCmd.AddCommand(makeUIUnlinkCmd(d))
 
 	return uiCmd
 }
@@ -491,6 +494,54 @@ Replaces 'make ui-test' and 'make ui-test-watch'.`,
 	testCmd.Flags().Bool(streamOutputFlag, false, "stream test output during run (default: true with --watch)")
 
 	return testCmd
+}
+
+func makeUILinkCmd(d *dev) *cobra.Command {
+	linkCmd := &cobra.Command{
+		Use:   "link",
+		Short: "Links the generated protobuf client to the global Yarn cache",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, commandLine []string) error {
+			ctx := cmd.Context()
+			bazelBin, err := d.getBazelBin(ctx)
+			if err != nil {
+				return err
+			}
+			argv := []string{
+				"link",
+				"--global",
+			}
+			exec.WithWorkingDir(
+				filepath.Join(bazelBin, "pkg", "ui", "protobuf-client", "package-oss"),
+			)(d.exec)
+			return d.exec.CommandContextInheritingStdStreams(ctx, "pnpm", argv...)
+		},
+	}
+	return linkCmd
+}
+
+func makeUIUnlinkCmd(d *dev) *cobra.Command {
+	unlinkCmd := &cobra.Command{
+		Use:   "unlink",
+		Short: "Unlinks the generated protobuf client to the global Yarn cache",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, commandLine []string) error {
+			ctx := cmd.Context()
+			bazelBin, err := d.getBazelBin(ctx)
+			if err != nil {
+				return err
+			}
+			argv := []string{
+				"unlink",
+				"--global",
+			}
+			exec.WithWorkingDir(
+				filepath.Join(bazelBin, "pkg", "ui", "protobuf-client", "package-oss"),
+			)(d.exec)
+			return d.exec.CommandContextInheritingStdStreams(ctx, "pnpm", argv...)
+		},
+	}
+	return unlinkCmd
 }
 
 // buildBazelYarnArgv returns the provided argv formatted so it can be run with

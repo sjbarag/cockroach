@@ -257,7 +257,7 @@ yarn_install(
       "@yarn_cache//:.seed",
     ],
     package_path = "/",
-    package_json = "//pkg/ui/workspaces/db-console/src/js:package.json",
+    package_json = "//pkg/ui/protobuf-client:package.json",
     strict_visibility = False,
     yarn_lock = "//pkg/ui/workspaces/db-console/src/js:yarn.lock",
 )
@@ -573,3 +573,13 @@ http_archive(
 
 load("//build/bazelutil:repositories.bzl", "distdir_repositories")
 distdir_repositories()
+
+# HACK HACK HACK
+http_archive(
+    name = "aspect_bazel_lib",
+    sha256 = "a8b47eeaf3c1bd41c4f4b633ef4c959daf83fdee343379495098b50571d4b3b8",
+    strip_prefix = "bazel-lib-0.11.1",
+    url = "https://github.com/aspect-build/bazel-lib/archive/refs/tags/v0.11.1.tar.gz",
+)
+load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies")
+aspect_bazel_lib_dependencies()
