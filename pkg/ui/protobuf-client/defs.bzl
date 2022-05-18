@@ -8,6 +8,8 @@ load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load("@npm_protos//protobufjs:index.bzl", "pbjs", "pbts")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 
+print("oh hello there")
+
 # protobuf.js relies on these packages, but does not list them as dependencies
 # in its package.json.
 # Instead they are listed under "cliDependencies"
@@ -31,9 +33,11 @@ _PROTOBUFJS_CLI_DEPS = ["@npm_protos//%s" % s for s in [
 ]]
 
 def _proto_sources_impl(ctx):
-    return DefaultInfo(files = depset(
+    out = DefaultInfo(files = depset(
         transitive = [p[ProtoInfo].transitive_sources for p in ctx.attr.protos],
     ))
+    print(out)
+    return out
 
 _proto_sources = rule(
     doc = """Provider Adapter from ProtoInfo to DefaultInfo.
@@ -62,7 +66,7 @@ def protobufjs_library(name, out_name, protos, **kwargs):
     ts_target = "_%s_pbts" % name
 
     # grab the transitive .proto files needed to compile the given one
-    _proto_sources(
+    foo = _proto_sources(
         name = proto_target,
         protos = protos,
     )
