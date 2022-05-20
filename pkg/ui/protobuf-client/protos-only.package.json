@@ -1,0 +1,16 @@
+{
+  "name": "@cockroachlabs/crdb-protobuf-defs-22.1",
+  "version": "0.0.1",
+  "description": "Just the protobuf definitions",
+  "license": "SEE LICENSE IN github.com/cockroachdb/cockroach/LICENSE",
+  "main": "index.js",
+  "files": [
+    "_virtual_imports",
+    "errorspb/",
+    "gogoproto/",
+    "google/",
+    "io/",
+    "pkg/",
+    "raftpb/"
+  ]
+}

@@ -2,13 +2,13 @@
 "it is extended to consume multiple protobuf_library targets instead of single instance as in original example"
 
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
+load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
 # TODO switch to protobufjs-cli when its published
 # https://github.com/protobufjs/protobuf.js/commit/da34f43ccd51ad97017e139f137521782f5ef119
 load("@npm_protos//protobufjs:index.bzl", "pbjs", "pbts")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
-
-print("oh hello there")
 
 # protobuf.js relies on these packages, but does not list them as dependencies
 # in its package.json.
@@ -33,11 +33,9 @@ _PROTOBUFJS_CLI_DEPS = ["@npm_protos//%s" % s for s in [
 ]]
 
 def _proto_sources_impl(ctx):
-    out = DefaultInfo(files = depset(
+    return DefaultInfo(files = depset(
         transitive = [p[ProtoInfo].transitive_sources for p in ctx.attr.protos],
     ))
-    print(out)
-    return out
 
 _proto_sources = rule(
     doc = """Provider Adapter from ProtoInfo to DefaultInfo.
@@ -66,7 +64,7 @@ def protobufjs_library(name, out_name, protos, **kwargs):
     ts_target = "_%s_pbts" % name
 
     # grab the transitive .proto files needed to compile the given one
-    foo = _proto_sources(
+    _proto_sources(
         name = proto_target,
         protos = protos,
     )
@@ -110,3 +108,32 @@ def protobufjs_library(name, out_name, protos, **kwargs):
         ],
         **kwargs
     )
+
+
+def arrange_protos(name, protos, package_json, **kwargs):
+    all_protos_target = "__{}.deps".format(name) 
+    _proto_sources(
+        name = all_protos_target,
+        protos = protos,
+    )
+
+    packagejson_target = "__{}.package_json".format(name)
+    copy_file(
+        name = packagejson_target,
+        src = package_json,
+        out = "package.json",
+    )
+
+    copy_to_directory(
+        name = name,
+        srcs = [ all_protos_target, packagejson_target, "index.js" ],
+        include_external_repositories = [
+            "go_googleapis",
+            "com_github_gogo_protobuf",
+            "com_google_protobuf",
+            "com_github_cockroachdb_errors",
+            "com_github_prometheus_client_model",
+            "io_etcd_go_etcd_raft_v3",
+        ],
+    )
+

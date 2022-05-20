@@ -577,9 +577,9 @@ distdir_repositories()
 # HACK HACK HACK
 http_archive(
     name = "aspect_bazel_lib",
-    sha256 = "a8b47eeaf3c1bd41c4f4b633ef4c959daf83fdee343379495098b50571d4b3b8",
-    strip_prefix = "bazel-lib-0.11.1",
-    url = "https://github.com/aspect-build/bazel-lib/archive/refs/tags/v0.11.1.tar.gz",
+    sha256 = "82e80cd47a5c2127ca0d717b7270fa833996c24dce389999c9d67e6c3eeb92e3",
+    strip_prefix = "bazel-lib-0.11.10",
+    url = "https://github.com/aspect-build/bazel-lib/archive/refs/tags/v0.11.10.tar.gz",
 )
 load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies")
 aspect_bazel_lib_dependencies()

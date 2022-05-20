@@ -1,4 +1,4 @@
-load("@//pkg/ui/workspaces/db-console/src/js:defs.bzl", "protobufjs_library")
+load(":defs.bzl", "protobufjs_library", "arrange_protos")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library")
 load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 
@@ -27,3 +27,13 @@ copy_to_directory(
     ":crdb-protobuf-client-oss"
   ],
 )
+
+arrange_protos(
+  name = "package-protos",
+  protos = [
+    "//pkg/server/serverpb:serverpb_proto",
+    "//pkg/ts/tspb:tspb_proto",
+  ],
+  package_json = "protos-only.package.json",
+)
+
