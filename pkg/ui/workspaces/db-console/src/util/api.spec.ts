@@ -26,7 +26,6 @@ describe("rest api", function() {
     afterEach(fetchMock.restore);
 
     it("correctly requests info about all databases", function() {
-      this.timeout(1000);
       // Mock out the fetch query to /databases
       fetchMock.mock({
         matcher: api.API_PREFIX + "/databases",
@@ -55,7 +54,6 @@ describe("rest api", function() {
     });
 
     it("correctly handles an error", function(done) {
-      this.timeout(1000);
       // Mock out the fetch query to /databases, but return a promise that's never resolved to test the timeout
       fetchMock.mock({
         matcher: api.API_PREFIX + "/databases",
@@ -80,7 +78,6 @@ describe("rest api", function() {
     });
 
     it("correctly times out", function(done) {
-      this.timeout(1000);
       // Mock out the fetch query to /databases, but return a promise that's never resolved to test the timeout
       fetchMock.mock({
         matcher: api.API_PREFIX + "/databases",
@@ -115,7 +112,6 @@ describe("rest api", function() {
     afterEach(fetchMock.restore);
 
     it("correctly requests info about a specific database", function() {
-      this.timeout(1000);
       // Mock out the fetch query
       fetchMock.mock({
         matcher: `${api.API_PREFIX}/databases/${dbName}`,
@@ -154,7 +150,6 @@ describe("rest api", function() {
     });
 
     it("correctly handles an error", function(done) {
-      this.timeout(1000);
       // Mock out the fetch query, but return a 500 status code
       fetchMock.mock({
         matcher: `${api.API_PREFIX}/databases/${dbName}`,
@@ -181,7 +176,6 @@ describe("rest api", function() {
     });
 
     it("correctly times out", function(done) {
-      this.timeout(1000);
       // Mock out the fetch query, but return a promise that's never resolved to test the timeout
       fetchMock.mock({
         matcher: `${api.API_PREFIX}/databases/${dbName}`,
@@ -219,7 +213,6 @@ describe("rest api", function() {
     afterEach(fetchMock.restore);
 
     it("correctly requests info about a specific table", function() {
-      this.timeout(1000);
       // Mock out the fetch query
       fetchMock.mock({
         matcher: `${api.API_PREFIX}/databases/${dbName}/tables/${tableName}`,
@@ -256,7 +249,6 @@ describe("rest api", function() {
     });
 
     it("correctly handles an error", function(done) {
-      this.timeout(1000);
       // Mock out the fetch query, but return a 500 status code
       fetchMock.mock({
         matcher: `${api.API_PREFIX}/databases/${dbName}/tables/${tableName}`,
@@ -284,7 +276,6 @@ describe("rest api", function() {
     });
 
     it("correctly times out", function(done) {
-      this.timeout(1000);
       // Mock out the fetch query, but return a promise that's never resolved to test the timeout
       fetchMock.mock({
         matcher: `${api.API_PREFIX}/databases/${dbName}/tables/${tableName}`,
@@ -322,7 +313,6 @@ describe("rest api", function() {
     afterEach(fetchMock.restore);
 
     it("correctly requests events", function() {
-      this.timeout(1000);
       // Mock out the fetch query
       fetchMock.mock({
         matcher: eventsPrefixMatcher,
@@ -349,8 +339,6 @@ describe("rest api", function() {
     });
 
     it("correctly requests filtered events", function() {
-      this.timeout(1000);
-
       const req = new protos.cockroach.server.serverpb.EventsRequest({
         target_id: Long.fromNumber(1),
         type: "test type",
@@ -404,8 +392,6 @@ describe("rest api", function() {
     });
 
     it("correctly handles an error", function(done) {
-      this.timeout(1000);
-
       // Mock out the fetch query, but return a 500 status code
       fetchMock.mock({
         matcher: eventsPrefixMatcher,
@@ -428,7 +414,6 @@ describe("rest api", function() {
     });
 
     it("correctly times out", function(done) {
-      this.timeout(1000);
       // Mock out the fetch query, but return a promise that's never resolved to test the timeout
       fetchMock.mock({
         matcher: eventsPrefixMatcher,
@@ -463,7 +448,6 @@ describe("rest api", function() {
     afterEach(fetchMock.restore);
 
     it("correctly requests health", function() {
-      this.timeout(1000);
       // Mock out the fetch query
       fetchMock.mock({
         matcher: healthUrl,
@@ -491,8 +475,6 @@ describe("rest api", function() {
     });
 
     it("correctly handles an error", function(done) {
-      this.timeout(1000);
-
       // Mock out the fetch query, but return a 500 status code
       fetchMock.mock({
         matcher: healthUrl,
@@ -515,7 +497,6 @@ describe("rest api", function() {
     });
 
     it("correctly times out", function(done) {
-      this.timeout(1000);
       // Mock out the fetch query, but return a promise that's never resolved to test the timeout
       fetchMock.mock({
         matcher: healthUrl,
@@ -551,7 +532,6 @@ describe("rest api", function() {
     afterEach(fetchMock.restore);
 
     it("correctly requests cluster info", function() {
-      this.timeout(1000);
       fetchMock.mock({
         matcher: clusterUrl,
         method: "GET",
@@ -577,8 +557,6 @@ describe("rest api", function() {
     });
 
     it("correctly handles an error", function(done) {
-      this.timeout(1000);
-
       // Mock out the fetch query, but return an error
       fetchMock.mock({
         matcher: clusterUrl,
@@ -601,7 +579,6 @@ describe("rest api", function() {
     });
 
     it("correctly times out", function(done) {
-      this.timeout(1000);
       // Mock out the fetch query, but return a promise that's never resolved to test the timeout
       fetchMock.mock({
         matcher: clusterUrl,
@@ -635,7 +612,6 @@ describe("rest api", function() {
     afterEach(fetchMock.restore);
 
     it("returns list of metadata metrics", () => {
-      this.timeout(1000);
       const metadata = {};
       fetchMock.mock({
         matcher: metricMetadataUrl,
@@ -664,8 +640,6 @@ describe("rest api", function() {
     });
 
     it("correctly handles an error", function(done) {
-      this.timeout(1000);
-
       // Mock out the fetch query, but return an error
       fetchMock.mock({
         matcher: metricMetadataUrl,
@@ -690,7 +664,6 @@ describe("rest api", function() {
     });
 
     it("correctly times out", function(done) {
-      this.timeout(1000);
       // Mock out the fetch query, but return a promise that's never resolved to test the timeout
       fetchMock.mock({
         matcher: metricMetadataUrl,
@@ -726,7 +699,6 @@ describe("rest api", function() {
     afterEach(fetchMock.restore);
 
     it("correctly requests log entries", function() {
-      this.timeout(1000);
       const logEntry = {
         file: "f",
         goroutine: Long.fromNumber(1),
@@ -763,7 +735,6 @@ describe("rest api", function() {
     });
 
     it("correctly handles restricted permissions for remote debugging", function(done) {
-      this.timeout(1000);
       fetchMock.mock({
         matcher: logsUrl,
         method: "GET",
@@ -791,7 +762,6 @@ describe("rest api", function() {
     });
 
     it("correctly times out", function(done) {
-      this.timeout(1000);
       // Mock out the fetch query, but return a promise that's never resolved to test the timeout
       fetchMock.mock({
         matcher: logsUrl,
