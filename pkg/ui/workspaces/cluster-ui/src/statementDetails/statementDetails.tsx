@@ -9,6 +9,9 @@
 // licenses/APL.txt.
 
 import { Col, Row, Tabs } from "antd";
+import "antd/lib/col/style";
+import "antd/lib/row/style";
+import "antd/lib/tabs/style";
 import { Text, Heading, InlineAlert } from "@cockroachlabs/ui-components";
 import { PageConfig, PageConfigItem } from "src/pageConfig";
 import _ from "lodash";
