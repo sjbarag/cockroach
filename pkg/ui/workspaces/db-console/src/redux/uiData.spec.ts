@@ -368,7 +368,7 @@ describe("UIData reducer", function() {
             {},
           ).finish();
           return {
-            body: api.toArrayBuffer(encodedResponse),
+            body: encodedResponse,
           };
         },
       });
@@ -397,7 +397,7 @@ describe("UIData reducer", function() {
     });
 
     it("correctly reacts to error during save", function(done) {
-      this.timeout(2000);
+      jest.setTimeout(2000);
       fetchMock.mock({
         matcher: `${api.API_PREFIX}/uidata`,
         method: "POST",
@@ -462,7 +462,7 @@ describe("UIData reducer", function() {
             response,
           ).finish();
           return {
-            body: api.toArrayBuffer(encodedResponse),
+            body: encodedResponse,
           };
         },
       });
@@ -483,7 +483,7 @@ describe("UIData reducer", function() {
     });
 
     it("correctly reacts to error during load", function(done) {
-      this.timeout(2000);
+      jest.setTimeout(2000);
 
       const uidataPrefixMatcher = `begin:${api.API_PREFIX}/uidata`;
 
@@ -531,7 +531,7 @@ describe("UIData reducer", function() {
             {},
           ).finish();
           return {
-            body: api.toArrayBuffer(encodedResponse),
+            body: encodedResponse,
           };
         },
       });
