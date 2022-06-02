@@ -8,11 +8,17 @@
 // by the Apache License, Version 2.0, included in the file
 // licenses/APL.txt.
 
+import { mockModlueWithStubbedComponent } from "./util/mockComponent";
+mockModlueWithStubbedComponent("src/views/databases/databaseDetailsPage", "DatabaseDetailsPage");
+mockModlueWithStubbedComponent("src/views/databases/databaseTablePage", "DatabaseTablePage");
+mockModlueWithStubbedComponent("src/views/cluster/containers/dataDistribution", "default");
+mockModlueWithStubbedComponent("src/views/sqlActivity/sqlActivityPage", "default");
+
 import React from "react";
 import { assert } from "chai";
 import { Action, Store } from "redux";
 import { createMemoryHistory } from "history";
-import { mount, ReactWrapper } from "enzyme";
+import { mount } from "enzyme";
 
 import { App } from "src/app";
 import { AdminUIState, createAdminUIStore } from "src/redux/state";
@@ -28,7 +34,8 @@ import { JobsTable } from "src/views/jobs";
 import { DatabasesPage } from "src/views/databases/databasesPage";
 import { DatabaseDetailsPage } from "src/views/databases/databaseDetailsPage";
 import { DatabaseTablePage } from "src/views/databases/databaseTablePage";
-import { DataDistributionPage } from "src/views/cluster/containers/dataDistribution";
+import DataDistributionPageConnected from "src/views/cluster/containers/dataDistribution";
+import SQLActivityPage from "src/views/sqlActivity/sqlActivityPage";
 import {
   StatementsPage,
   StatementDetails,
@@ -64,9 +71,21 @@ describe("Routing to", () => {
     initialEntries: ["/"],
   });
   const store: Store<AdminUIState, Action> = createAdminUIStore(history);
-  const appWrapper: ReactWrapper = mount(
+  const appWrapper = mount(
     <App history={history} store={store} />,
   );
+
+  //beforeAll(() => {
+  //  [
+  //    DatabaseDetailsPage,
+  //    DatabaseTablePage,
+  //    DataDistributionPage,
+  //  ].forEach((component) => {
+  //    if (component instanceof React.Component) {
+  //    }
+  //    mocked(component).mockReturnValue(<div data-componentname={component.name}/> as any);
+  //  });
+  //});
 
   afterAll(() => {
     appWrapper.unmount();
@@ -285,7 +304,7 @@ describe("Routing to", () => {
     });
   });
 
-  describe("'/database/:${databaseNameAttr}' path", () => {
+  describe.only("'/database/:${databaseNameAttr}' path", () => {
     it("routes to <DatabaseDetailsPage> component", () => {
       navigateToPath("/database/some-db-name");
       assert.lengthOf(appWrapper.find(DatabaseDetailsPage), 1);
@@ -300,7 +319,7 @@ describe("Routing to", () => {
     });
   });
 
-  describe("'/database/:${databaseNameAttr}/table/:${tableNameAttr}' path", () => {
+  describe.only("'/database/:${databaseNameAttr}/table/:${tableNameAttr}' path", () => {
     it("routes to <DatabaseTablePage> component", () => {
       navigateToPath("/database/some-db-name/table/some-table-name");
       assert.lengthOf(appWrapper.find(DatabaseTablePage), 1);
@@ -310,10 +329,10 @@ describe("Routing to", () => {
   {
     /* data distribution */
   }
-  describe("'/data-distribution' path", () => {
+  describe.only("'/data-distribution' path", () => {
     it("routes to <DataDistributionPage> component", () => {
       navigateToPath("/data-distribution");
-      assert.lengthOf(appWrapper.find(DataDistributionPage), 1);
+      assert.lengthOf(appWrapper.find(DataDistributionPageConnected), 1);
     });
   });
 
@@ -321,9 +340,9 @@ describe("Routing to", () => {
     /* statement statistics */
   }
   describe("'/statements' path", () => {
-    it("routes to <StatementsPage> component", () => {
+    it("redirects to '/sql-activity' statement tab", () => {
       navigateToPath("/statements");
-      assert.lengthOf(appWrapper.find(StatementsPage), 1);
+      assert.lengthOf(appWrapper.find(SQLActivityPage), 1);
     });
   });
 
