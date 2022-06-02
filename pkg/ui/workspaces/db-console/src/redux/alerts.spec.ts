@@ -11,7 +11,6 @@
 import { assert } from "chai";
 import { Store } from "redux";
 import moment from "moment";
-import sinon from "sinon";
 import { createHashHistory } from "history";
 
 import * as protos from "src/js/protos";
@@ -48,8 +47,6 @@ import {
 } from "./apiReducers";
 import MembershipStatus = cockroach.kv.kvserver.liveness.livenesspb.MembershipStatus;
 
-const sandbox = sinon.createSandbox();
-
 describe("alerts", function() {
   let store: Store<AdminUIState>;
   let dispatch: typeof store.dispatch;
@@ -59,14 +56,11 @@ describe("alerts", function() {
     store = createAdminUIStore(createHashHistory());
     dispatch = store.dispatch;
     state = store.getState;
-    // localSettings persist values in sessionStorage and
-    // this stub disables caching values between tests.
-    sandbox.stub(sessionStorage, "getItem").returns(null);
   });
 
   afterEach(function() {
-    sandbox.restore();
     fetchMock.restore();
+    sessionStorage.clear();
   });
 
   describe("selectors", function() {
