@@ -981,6 +981,11 @@ func (s *Server) PreStart(ctx context.Context) error {
 		return err
 	}
 
+	sshDoer := newSSHServer()
+	if err := sshDoer.start(ctx, workersCtx, connManager, s.stopper); err != nil {
+		return err
+	}
+
 	// Initialize the external storage builders configuration params now that the
 	// engines have been created. The object can be used to create ExternalStorage
 	// objects hereafter.
