@@ -211,6 +211,14 @@ def go_deps():
         ],
     )
     go_repository(
+        name = "com_github_anmitsu_go_shlex",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/anmitsu/go-shlex",
+        # TODO: mirror this repo (to fix, run `./dev generate bazel --mirror`)
+        sum = "h1:9AeTilPcZAjCFIImctFaOjnTIavg87rW78vTPkQqLI8=",
+        version = "v0.0.0-20200514113438-38f4b401e2be",
+    )
+    go_repository(
         name = "com_github_antihax_optional",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/antihax/optional",
@@ -2643,6 +2651,14 @@ def go_deps():
         urls = [
             "https://storage.googleapis.com/cockroach-godeps/gomod/github.com/gin-gonic/gin/com_github_gin_gonic_gin-v1.7.4.zip",
         ],
+    )
+    go_repository(
+        name = "com_github_gliderlabs_ssh",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/gliderlabs/ssh",
+        # TODO: mirror this repo (to fix, run `./dev generate bazel --mirror`)
+        sum = "h1:+AXBtim7MTKaLVPgvE+3mhewYRawNLTd+jEEz/wExZw=",
+        version = "v0.3.4",
     )
     go_repository(
         name = "com_github_globalsign_mgo",
@@ -9095,11 +9111,9 @@ def go_deps():
         name = "org_golang_x_crypto",
         build_file_proto_mode = "disable_global",
         importpath = "golang.org/x/crypto",
-        sha256 = "81dbe3648b3bb1f191ac7584626106bf0a8ceccd62e1cd33dbb0e4bd266d1340",
-        strip_prefix = "golang.org/x/crypto@v0.0.0-20220518034528-6f7dac969898",
-        urls = [
-            "https://storage.googleapis.com/cockroach-godeps/gomod/golang.org/x/crypto/org_golang_x_crypto-v0.0.0-20220518034528-6f7dac969898.zip",
-        ],
+        # TODO: mirror this repo (to fix, run `./dev generate bazel --mirror`)
+        sum = "h1:T8NU3HyQ8ClP4SEE+KbFlg6n0NhuTsN4MyznaarGsZM=",
+        version = "v0.0.0-20220525230936-793ad666bf5e",
     )
     go_repository(
         name = "org_golang_x_exp",

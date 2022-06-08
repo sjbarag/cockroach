@@ -845,7 +845,6 @@ DISTDIR_FILES = {
     "https://storage.googleapis.com/cockroach-godeps/gomod/go.uber.org/zap/org_uber_go_zap-v1.19.0.zip": "6437824258873fed421b7975b8e4cafd1be80cdc15e553beaa887b499dd01420",
     "https://storage.googleapis.com/cockroach-godeps/gomod/goji.io/io_goji-v2.0.2+incompatible.zip": "1ea69b28e356cb91381ce2339004fcf144ad1b268c9e3497c9ef304751ae0bb3",
     "https://storage.googleapis.com/cockroach-godeps/gomod/golang.org/x/arch/org_golang_x_arch-v0.0.0-20180920145803-b19384d3c130.zip": "9f67b677a3fefc503111d9aa7df8bacd2677411b0fcb982eb1654aa6d14cc3f8",
-    "https://storage.googleapis.com/cockroach-godeps/gomod/golang.org/x/crypto/org_golang_x_crypto-v0.0.0-20220518034528-6f7dac969898.zip": "81dbe3648b3bb1f191ac7584626106bf0a8ceccd62e1cd33dbb0e4bd266d1340",
     "https://storage.googleapis.com/cockroach-godeps/gomod/golang.org/x/exp/org_golang_x_exp-v0.0.0-20220104160115-025e73f80486.zip": "50e096afbb8e0f073519dd05f6573aefe410a829c87a7c1b64efb8c4a3948c50",
     "https://storage.googleapis.com/cockroach-godeps/gomod/golang.org/x/image/org_golang_x_image-v0.0.0-20190802002840-cff245a6509b.zip": "4a44b498934a95e8f84e8374530de0cab38d81fcd558898d4880c3c5ce1efe47",
     "https://storage.googleapis.com/cockroach-godeps/gomod/golang.org/x/lint/org_golang_x_lint-v0.0.0-20210508222113-6edffad5e616.zip": "0a4a5ebd2b1d79e7f480cbf5a54b45a257ae1ec9d11f01688efc5c35268d4603",

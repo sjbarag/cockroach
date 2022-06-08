@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
+	_ "github.com/gliderlabs/ssh"
 
 	"github.com/cockroachdb/cockroach/pkg/base"
 	"github.com/cockroachdb/cockroach/pkg/clusterversion"
