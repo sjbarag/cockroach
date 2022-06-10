@@ -60,6 +60,7 @@ func (s *sshServer) start(
 				// reader, writer := io.Pipe()
 				argv := []string {
 					"sql",
+					"--embedded",
 					"--url",
 				}
 				argv = append(argv, s.Command()...)
@@ -67,6 +68,11 @@ func (s *sshServer) start(
 				cmd.Stdin = s
 				cmd.Stdout = s.Stderr()
 				cmd.Stderr = s.Stderr()
+
+				pty, _, accepted := s.Pty()
+				fmt.Printf("accepted pty?: %+v, pty = %#v", accepted, pty)
+
+				//TODO: allocate a tty with tty.Open() https://pkg.go.dev/github.com/mattn/go-tty#section-readme
 
 				io.WriteString(s, strings.TrimSpace(`
 				BANNER
