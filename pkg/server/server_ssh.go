@@ -2,7 +2,11 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/netutil"
@@ -10,7 +14,7 @@ import (
 	"github.com/gliderlabs/ssh"
 )
 
-type sshServer struct {}
+type sshServer struct{}
 
 func newSSHServer() sshServer {
 	return sshServer{}
@@ -28,7 +32,6 @@ func (s *sshServer) start(
 		return err
 	}
 	log.Eventf(ctx, "listening on ssh port %s", listenAddr)
-
 
 	// The SSH listener shutdown worker, which closes everything under
 	// the SSH port when the stopper indicates we are shutting down.
@@ -55,14 +58,28 @@ func (s *sshServer) start(
 			Addr: listenAddr,
 			Handler: func(s ssh.Session) {
 				// reader, writer := io.Pipe()
-				// cmd := exec.CommandContext(ctx, os.Args[0], "--user", s.User())
-				// cmd.Stdout = writer
-				// cmd.Stderr = writer
+				argv := []string {
+					"sql",
+					"--url",
+				}
+				argv = append(argv, s.Command()...)
+				cmd := exec.CommandContext(ctx, os.Args[0], argv...)
+				cmd.Stdin = s
+				cmd.Stdout = s.Stderr()
+				cmd.Stderr = s.Stderr()
 
-				// if err := cmd.Start(); err != nil {
-				// 	return
-				// }
-				io.WriteString(s, "Hello, ssh\n")
+				io.WriteString(s, strings.TrimSpace(`
+				BANNER
+				BANNER
+				BANNER
+				BANNER`) + "\n")
+
+				if err := cmd.Start(); err != nil {
+					fmt.Printf("cmd.Start failed with error %+v", err)
+					return
+				}
+
+				cmd.Wait()
 			},
 		}
 
