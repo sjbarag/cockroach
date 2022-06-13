@@ -6,11 +6,11 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/netutil"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
+	"github.com/creack/pty"
 	"github.com/gliderlabs/ssh"
 )
 
@@ -57,7 +57,7 @@ func (s *sshServer) start(
 		glSsh := ssh.Server{
 			Addr: listenAddr,
 			Handler: func(s ssh.Session) {
-				// reader, writer := io.Pipe()
+				// TODO: auth sql user by parsing connect URL, prompting for a password if none provided
 				argv := []string {
 					"sql",
 					"--embedded",
@@ -65,27 +65,25 @@ func (s *sshServer) start(
 				}
 				argv = append(argv, s.Command()...)
 				cmd := exec.CommandContext(ctx, os.Args[0], argv...)
-				cmd.Stdin = s
-				cmd.Stdout = s.Stderr()
-				cmd.Stderr = s.Stderr()
 
-				pty, _, accepted := s.Pty()
-				fmt.Printf("accepted pty?: %+v, pty = %#v", accepted, pty)
+				sessionPty, _, accepted := s.Pty()
+				fmt.Fprintf(os.Stderr, "accepted pty?: %+v, pty = %#v\n", accepted, sessionPty)
 
-				//TODO: allocate a tty with tty.Open() https://pkg.go.dev/github.com/mattn/go-tty#section-readme
-
-				io.WriteString(s, strings.TrimSpace(`
-				BANNER
-				BANNER
-				BANNER
-				BANNER`) + "\n")
-
-				if err := cmd.Start(); err != nil {
-					fmt.Printf("cmd.Start failed with error %+v", err)
+				shellPty, err := pty.StartWithSize(cmd, &pty.Winsize{
+					Rows: uint16(sessionPty.Window.Height),
+					Cols: uint16(sessionPty.Window.Width),
+					// X and Y left at zero because they're not consistently knowable over SSH
+					// (X11 Forwarding could help potentially)
+				})
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "pty.Start failed with error %+v\n", err)
 					return
 				}
 
-				cmd.Wait()
+				// Merge the PTY's stdout and stderr into the SSH session's stdout
+				go func(){ _, _ = io.Copy(shellPty, s) }()
+				// Copy the SSH session's stdin to the PTY's stdin
+				_, _ = io.Copy(s, shellPty)
 			},
 		}
 

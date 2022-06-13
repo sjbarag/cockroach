@@ -261,6 +261,7 @@ go_library(
         "@com_github_cockroachdb_pebble//bloom",
         "@com_github_cockroachdb_pebble//vfs",
         "@com_github_cockroachdb_redact//:redact",
+        "@com_github_creack_pty//:pty",
         "@com_github_getsentry_sentry_go//:sentry-go",
         "@com_github_gliderlabs_ssh//:ssh",
         "@com_github_gogo_protobuf//proto",

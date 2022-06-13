@@ -1755,11 +1755,9 @@ def go_deps():
         name = "com_github_creack_pty",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/creack/pty",
-        sha256 = "d6594fd4844c242a5c7d6e9b25516182460cffa820e47e8ffb8eea625991986c",
-        strip_prefix = "github.com/creack/pty@v1.1.11",
-        urls = [
-            "https://storage.googleapis.com/cockroach-godeps/gomod/github.com/creack/pty/com_github_creack_pty-v1.1.11.zip",
-        ],
+        # TODO: mirror this repo (to fix, run `./dev generate bazel --mirror`)
+        sum = "h1:n56/Zwd5o6whRC5PMGretI4IdRLlmBXYNjScPaBgsbY=",
+        version = "v1.1.18",
     )
     go_repository(
         name = "com_github_crossdock_crossdock_go",

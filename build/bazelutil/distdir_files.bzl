@@ -222,7 +222,6 @@ DISTDIR_FILES = {
     "https://storage.googleapis.com/cockroach-godeps/gomod/github.com/corpix/uarand/com_github_corpix_uarand-v0.1.1.zip": "e2220522fbb3b8f21b44e7b6aecf52177738d82809ca4ab6918043ed5b19857c",
     "https://storage.googleapis.com/cockroach-godeps/gomod/github.com/cpuguy83/go-md2man/com_github_cpuguy83_go_md2man-v1.0.10.zip": "b9b153bb97e2a702ec5c41f6815985d4295524cdf4f2a9e5633f98e9739f4d6e",
     "https://storage.googleapis.com/cockroach-godeps/gomod/github.com/cpuguy83/go-md2man/v2/com_github_cpuguy83_go_md2man_v2-v2.0.1.zip": "f5ded1130031e98dc4bdf17e45ac89ad2eeae3083d6150b6d5f3fc75b9e9cd6b",
-    "https://storage.googleapis.com/cockroach-godeps/gomod/github.com/creack/pty/com_github_creack_pty-v1.1.11.zip": "d6594fd4844c242a5c7d6e9b25516182460cffa820e47e8ffb8eea625991986c",
     "https://storage.googleapis.com/cockroach-godeps/gomod/github.com/crossdock/crossdock-go/com_github_crossdock_crossdock_go-v0.0.0-20160816171116-049aabb0122b.zip": "f8a2ed6cd39e4f3e8108b8987f72bf6746276ada6fd3fcc62015bdbdd097f1a3",
     "https://storage.googleapis.com/cockroach-godeps/gomod/github.com/cyberdelia/go-metrics-graphite/com_github_cyberdelia_go_metrics_graphite-v0.0.0-20161219230853-39f87cc3b432.zip": "38a34b96a597d50553e367de6e4eb3488e83dc37cae3930b38d9b48695b08b0c",
     "https://storage.googleapis.com/cockroach-godeps/gomod/github.com/cyberdelia/templates/com_github_cyberdelia_templates-v0.0.0-20141128023046-ca7fffd4298c.zip": "a0ed6b8037d36222f63128f6064ed5b0e461fa9798c3592440a08875154d6c72",
