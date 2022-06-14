@@ -5443,11 +5443,9 @@ def go_deps():
         name = "com_github_mattn_go_tty",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/mattn/go-tty",
-        sha256 = "e7384ae06bb54cc8f615d86e6397b11849be12c270d66460856f3fc6ad72aacb",
-        strip_prefix = "github.com/mattn/go-tty@v0.0.0-20180907095812-13ff1204f104",
-        urls = [
-            "https://storage.googleapis.com/cockroach-godeps/gomod/github.com/mattn/go-tty/com_github_mattn_go_tty-v0.0.0-20180907095812-13ff1204f104.zip",
-        ],
+        # TODO: mirror this repo (to fix, run `./dev generate bazel --mirror`)
+        sum = "h1:NVikla9X8MN0SQAqCYzpGyXv0jY7MNl3HOWD2dkle7E=",
+        version = "v0.0.4",
     )
     go_repository(
         name = "com_github_mattn_go_zglob",
@@ -9207,11 +9205,9 @@ def go_deps():
         name = "org_golang_x_sys",
         build_file_proto_mode = "disable_global",
         importpath = "golang.org/x/sys",
-        sha256 = "734caf189549ea9b85dd93f58e87e3f3bceaec72229449f5879c3c067a2ad60e",
-        strip_prefix = "golang.org/x/sys@v0.0.0-20220520151302-bc2c85ada10a",
-        urls = [
-            "https://storage.googleapis.com/cockroach-godeps/gomod/golang.org/x/sys/org_golang_x_sys-v0.0.0-20220520151302-bc2c85ada10a.zip",
-        ],
+        # TODO: mirror this repo (to fix, run `./dev generate bazel --mirror`)
+        sum = "h1:PgOr27OhUx2IRqGJ2RxAWI4dJQ7bi9cSrB82uzFzfUA=",
+        version = "v0.0.0-20220614162138-6c1b26c55098",
     )
     go_repository(
         name = "org_golang_x_term",

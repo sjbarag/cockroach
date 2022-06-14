@@ -5,13 +5,17 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 
+	"github.com/cockroachdb/cockroach/pkg/cli/clicfg"
+	"github.com/cockroachdb/cockroach/pkg/cli/clisqlcfg"
+	"github.com/cockroachdb/cockroach/pkg/cli/clisqlclient"
+	"github.com/cockroachdb/cockroach/pkg/cli/clisqlexec"
+	"github.com/cockroachdb/cockroach/pkg/server/pgurl"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
 	"github.com/cockroachdb/cockroach/pkg/util/netutil"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
-	"github.com/creack/pty"
 	"github.com/gliderlabs/ssh"
+	"github.com/creack/pty"
 )
 
 type sshServer struct{}
@@ -54,36 +58,80 @@ func (s *sshServer) start(
 	// Actually do the ssh parts
 	return stopper.RunAsyncTask(workersCtx, "server-ssh", func(ctx context.Context) {
 
+		const welcomeMessage = `#
+# Welcome to the CockroachDB SQL shell, served over SSH oh wow, neat.
+# All statements must be terminated by a semicolon.
+# To exit, press '<Ctrl>+c' or type: \q.
+#
+`
+
 		glSsh := ssh.Server{
 			Addr: listenAddr,
 			Handler: func(s ssh.Session) {
-				// TODO: auth sql user by parsing connect URL, prompting for a password if none provided
-				argv := []string {
-					"sql",
-					"--embedded",
-					"--url",
-				}
-				argv = append(argv, s.Command()...)
-				cmd := exec.CommandContext(ctx, os.Args[0], argv...)
-
 				sessionPty, _, accepted := s.Pty()
 				fmt.Fprintf(os.Stderr, "accepted pty?: %+v, pty = %#v\n", accepted, sessionPty)
 
-				shellPty, err := pty.StartWithSize(cmd, &pty.Winsize{
-					Rows: uint16(sessionPty.Window.Height),
-					Cols: uint16(sessionPty.Window.Width),
-					// X and Y left at zero because they're not consistently knowable over SSH
-					// (X11 Forwarding could help potentially)
-				})
+				thePty, theTty, err := pty.Open()
+
+				cliCtx := &clicfg.Context{
+					IsInteractive: true,
+					EmbeddedMode:  true,
+				}
+				cfg := &clisqlcfg.Context{
+					CliCtx:  cliCtx,
+					ConnCtx: &clisqlclient.Context{CliCtx: cliCtx, DebugMode: true},
+					ExecCtx: &clisqlexec.Context{CliCtx: cliCtx},
+				}
+				cfg.LoadDefaults(theTty, theTty)
+
+				// TODO: determine if we can do full CLI argument parsing
+				parsed, err := pgurl.Parse(s.Command()[0])
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "pty.Start failed with error %+v\n", err)
+					fmt.Fprintf(os.Stderr, "unable to parse connect string '%s': %+v\n", s.Command()[0], err)
+					return
+				}
+				fmt.Fprintf(os.Stderr, "Parsed url = %#v\n", parsed)
+
+				connURL := parsed.WithDefaultUsername(s.User())
+
+				// TODO: consider bringing this back so we have control over the ServerHost
+				//var copts clientsecopts.ClientOptions
+				//copts.ServerHost = "localhost"
+				//copts.User = parsed.GetUsername()
+				//copts.Database = parsed.GetDatabase()
+				//
+				// connURL, err := clientsecopts.MakeClientConnURL(copts)
+				// if err != nil {
+				// 	fmt.Fprintf(os.Stderr, "Unable to make client connection URL: %+v\n", err)
+				// 	return
+				// }
+				fmt.Fprintf(os.Stderr, "Generated url = %+v\n", connURL)
+
+				closeFn, err := cfg.Open(theTty)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error calling cfg.Open(): %+v\n", err)
+					return
+				}
+				defer closeFn()
+				io.WriteString(theTty, welcomeMessage)
+
+				conn, err := cfg.MakeConn(connURL.ToPQ().String())
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error calling cfg.MakeConn(): %+v\n", err)
 					return
 				}
 
-				// Merge the PTY's stdout and stderr into the SSH session's stdout
-				go func(){ _, _ = io.Copy(shellPty, s) }()
-				// Copy the SSH session's stdin to the PTY's stdin
-				_, _ = io.Copy(s, shellPty)
+				// Copy the SSH session's stdin to the PTY's stdin.
+				go func() { _, _ = io.Copy(thePty, s) }()
+				// Copy the PTY's stdout and stderr to the SSH session's stdout.
+				go func() { _, _ = io.Copy(s, thePty) }()
+
+				err = cfg.Run(ctx, conn)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error calling run(): %+v\n", err)
+					s.Exit(255)
+					return
+				}
 			},
 		}
 
