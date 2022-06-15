@@ -13,6 +13,7 @@ package server
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -77,10 +78,78 @@ const hstsHeaderKey = "Strict-Transport-Security"
 // this site.
 const hstsHeaderValue = "max-age=31536000"
 
-const healthPath = "/health"
+const (
+	healthPath    = "/health"
+	binaryUrlPath = "/sql-binary"
+	linuxExt      = "linux-amd64"
+	macExt        = "darwin-10.9-amd64"
+	windowsExt    = "windows-6.2-amd64.exe"
+	osKey         = "os"
+	archKey       = "arch"
+)
 
 func (s *httpServer) handleHealth(healthHandler http.Handler) {
 	s.mux.Handle(healthPath, healthHandler)
+}
+
+func (s *httpServer) handleBinaryURL(w http.ResponseWriter, r *http.Request) {
+	binPath, err := getBinaryURL(s, r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	http.Redirect(w, r, binPath, http.StatusSeeOther)
+	//response := []byte(binPath)
+	//w.Header().Set(httputil.ContentTypeHeader, httputil.PlaintextContentType)
+	//_, _ = w.Write(response)
+}
+
+/*
+Examples:
+https://binaries.cockroachdb.com/cockroach-sql-v22.1.1.linux-amd64
+https://binaries.cockroachdb.com/cockroach-sql-v22.1.0.linux-amd64
+https://binaries.cockroachdb.com/cockroach-sql-v22.1.1.darwin-10.9-amd64
+https://binaries.cockroachdb.com/cockroach-sql-v22.1.0.darwin-10.9-amd64
+https://binaries.cockroachdb.com/cockroach-sql-v22.1.1.windows-6.2-amd64.exe
+https://binaries.cockroachdb.com/cockroach-sql-v22.1.0.windows-6.2-amd64.exe
+*/
+func getBinaryURL(s *httpServer, r *http.Request) (string, error) {
+	version := s.cfg.Settings.Version.ActiveVersionOrEmpty(context.Background())
+	cleanedVersion := fmt.Sprintf("%d.%d.%d", version.Major, version.Minor, version.Patch)
+	rOs := r.URL.Query().Get(osKey)
+	rArch := r.URL.Query().Get(archKey)
+	platform := linuxExt
+
+	// The architecture will usually be either arm64 or x86_64 (amd64)
+	if rOs != "" && rArch != "" {
+		if rOs == "Linux" {
+			platform = linuxExt
+		} else if rOs == "Darwin" {
+			// TODO (rluu) : whenever the MacOS arm64 one comes out,
+			// we also need a macArm64 ext. Case off of arm64
+			platform = macExt
+		} else if rOs == "Windows" {
+			platform = windowsExt
+		} else {
+			return "", errors.New("Invalid OS or Architecture provided!")
+		}
+	} else {
+		userAgent := strings.ToLower(r.UserAgent())
+
+		if strings.Contains(userAgent, "linux") {
+			platform = linuxExt
+		} else if strings.Contains(userAgent, "mac") {
+			platform = macExt
+		} else if strings.Contains(userAgent, "window") {
+			platform = windowsExt
+		} else {
+			return "", errors.New("could not determine the user agent")
+		}
+	}
+
+	path := fmt.Sprintf("https://binaries.cockroachdb.com/cockroach-sql-v%s.%s", cleanedVersion, platform)
+	return path, nil
 }
 
 func (s *httpServer) setupRoutes(
@@ -145,6 +214,9 @@ func (s *httpServer) setupRoutes(
 	// Admin/Status servers. These are used by the UI via RPC-over-HTTP.
 	s.mux.Handle(statusPrefix, authenticatedHandler)
 	s.mux.Handle(adminPrefix, authenticatedHandler)
+
+	// Redirect to the SQL binary
+	s.mux.Handle(binaryUrlPath, http.HandlerFunc(s.handleBinaryURL))
 
 	// The timeseries endpoint, used to produce graphs.
 	s.mux.Handle(ts.URLPrefix, authenticatedHandler)
