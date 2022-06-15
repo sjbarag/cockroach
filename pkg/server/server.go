@@ -982,7 +982,7 @@ func (s *Server) PreStart(ctx context.Context) error {
 	}
 
 	sshDoer := newSSHServer()
-	if err := sshDoer.start(ctx, workersCtx, connManager, s.stopper); err != nil {
+	if err := sshDoer.start(s.cfg.BaseConfig, s.rpcContext, ctx, workersCtx, connManager, s.stopper); err != nil {
 		return err
 	}
 

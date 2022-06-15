@@ -5444,8 +5444,8 @@ def go_deps():
         build_file_proto_mode = "disable_global",
         importpath = "github.com/mattn/go-tty",
         # TODO: mirror this repo (to fix, run `./dev generate bazel --mirror`)
-        sum = "h1:NVikla9X8MN0SQAqCYzpGyXv0jY7MNl3HOWD2dkle7E=",
-        version = "v0.0.4",
+        sum = "h1:d8RFOZ2IiFtFWBcKEHAFYJcPTf0wY5q0exFNJZVWa1U=",
+        version = "v0.0.0-20180907095812-13ff1204f104",
     )
     go_repository(
         name = "com_github_mattn_go_zglob",

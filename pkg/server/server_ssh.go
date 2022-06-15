@@ -4,18 +4,20 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/cockroachdb/cockroach/pkg/cli/clicfg"
 	"github.com/cockroachdb/cockroach/pkg/cli/clisqlcfg"
 	"github.com/cockroachdb/cockroach/pkg/cli/clisqlclient"
 	"github.com/cockroachdb/cockroach/pkg/cli/clisqlexec"
+	"github.com/cockroachdb/cockroach/pkg/rpc"
 	"github.com/cockroachdb/cockroach/pkg/server/pgurl"
 	"github.com/cockroachdb/cockroach/pkg/util/log"
+	"github.com/cockroachdb/cockroach/pkg/util/log/logpb"
 	"github.com/cockroachdb/cockroach/pkg/util/netutil"
 	"github.com/cockroachdb/cockroach/pkg/util/stop"
-	"github.com/gliderlabs/ssh"
 	"github.com/creack/pty"
+	"github.com/gliderlabs/ssh"
+	gossh "golang.org/x/crypto/ssh"
 )
 
 type sshServer struct{}
@@ -25,6 +27,8 @@ func newSSHServer() sshServer {
 }
 
 func (s *sshServer) start(
+	cfg BaseConfig,
+	rpcContext *rpc.Context,
 	ctx, workersCtx context.Context,
 	connManager netutil.Server,
 	stopper *stop.Stopper,
@@ -93,7 +97,7 @@ func (s *sshServer) start(
 			Addr: listenAddr,
 			Handler: func(s ssh.Session) {
 				sessionPty, _, accepted := s.Pty()
-				fmt.Fprintf(os.Stderr, "accepted pty?: %+v, pty = %#v\n", accepted, sessionPty)
+				log.Dev.Shout(ctx, logpb.Severity_INFO, fmt.Sprintf("accepted pty?: %+v, pty = %#v\n", accepted, sessionPty))
 				if !accepted {
 					io.WriteString(s, "# For the best experience, please request a TTY.\n")
 					io.WriteString(s, "# Typically that's by adding '-t' to your SSH command, e.g.:\n")
@@ -117,10 +121,10 @@ func (s *sshServer) start(
 				// TODO: determine if we can do full CLI argument parsing
 				parsed, err := pgurl.Parse(s.Command()[0])
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "unable to parse connect string '%s': %+v\n", s.Command()[0], err)
+					log.Dev.Shout(ctx, logpb.Severity_ERROR, fmt.Sprintf("unable to parse connect string '%s': %+v\n", s.Command()[0], err))
 					return
 				}
-				fmt.Fprintf(os.Stderr, "Parsed url = %#v\n", parsed)
+				log.Dev.Shout(ctx, logpb.Severity_INFO, fmt.Sprintf("Parsed url = %#v\n", parsed))
 
 				connURL := parsed.WithDefaultUsername(s.User())
 
@@ -135,18 +139,18 @@ func (s *sshServer) start(
 				// 	fmt.Fprintf(os.Stderr, "Unable to make client connection URL: %+v\n", err)
 				// 	return
 				// }
-				fmt.Fprintf(os.Stderr, "Generated url = %+v\n", connURL)
+				log.Dev.Shout(ctx, logpb.Severity_INFO, fmt.Sprintf("Generated url = %+v\n", connURL))
 
 				closeFn, err := cfg.Open(theTty)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "Error calling cfg.Open(): %+v\n", err)
+					log.Dev.Shout(ctx, logpb.Severity_ERROR, fmt.Sprintf("Error calling cfg.Open(): %+v\n", err))
 					return
 				}
 				defer closeFn()
 
 				conn, err := cfg.MakeConn(connURL.ToPQ().String())
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "Error calling cfg.MakeConn(): %+v\n", err)
+					log.Dev.Shout(ctx, logpb.Severity_ERROR, fmt.Sprintf("Error calling cfg.MakeConn(): %+v\n", err))
 					return
 				}
 
@@ -162,11 +166,26 @@ func (s *sshServer) start(
 
 				err = cfg.Run(ctx, conn)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "Error calling run(): %+v\n", err)
+					log.Dev.Shout(ctx, logpb.Severity_ERROR, fmt.Sprintf("Error calling run(): %+v\n", err))
 					s.Exit(255)
 					return
 				}
 			},
+		}
+
+		cm, err := rpcContext.GetCertificateManager()
+		if err != nil {
+			log.Dev.Shout(ctx, logpb.Severity_ERROR, fmt.Sprintf("unable to get a certificate manager: %+v\n", err))
+			return
+		}
+		certInfo := cm.NodeCert()
+		if certInfo != nil {
+			signer, err := gossh.ParsePrivateKey(certInfo.KeyFileContents)
+			if err != nil {
+				log.Dev.Shout(ctx, logpb.Severity_ERROR, fmt.Sprintf("Unable to create signer for key '%s': %+v\n", certInfo.KeyFileContents, err))
+				return
+			}
+			glSsh.AddHostKey(signer)
 		}
 
 		netutil.FatalIfUnexpected(glSsh.Serve(sshLn))
