@@ -20,7 +20,6 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	_ "github.com/gliderlabs/ssh"
 
 	"github.com/cockroachdb/cockroach/pkg/base"
 	"github.com/cockroachdb/cockroach/pkg/clusterversion"
@@ -88,6 +87,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/cockroachdb/redact"
 	sentry "github.com/getsentry/sentry-go"
+	_ "github.com/gliderlabs/ssh"
 	"google.golang.org/grpc/codes"
 )
 
