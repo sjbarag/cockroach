@@ -58,10 +58,34 @@ func (s *sshServer) start(
 	// Actually do the ssh parts
 	return stopper.RunAsyncTask(workersCtx, "server-ssh", func(ctx context.Context) {
 
+		const roach = `#
+# __aaawwmqmqmwwwaas,,_        .__aaawwwmqmqmwwaaa,,
+# "VT?!"""^~~^"""??T$Wmqaa,_auqmWBT?!"""^~~^^""??YV^
+#                     "?##mW##?"-
+#                    _am#Z??A#ma,
+#                  _ummY"    "9#ma,
+#                 vm#Z(        )Xmms
+#               .j####mmm#####mm#m##6.
+#               jmm###mm######m#mmm##6
+#              ]#me*Xm#m#mm##m#m##SX##c
+#              dm#||+*$##m#mm#m#Svvn##m
+#             :mmE=|+||S##m##m#1nvnnX##;
+#             :m#h+|+++=Xmm#m#1nvnnvdmm;
+#              $#m>+|+|||##m#1nvnnnnmm#
+#              ]##z+|+|+|3#mEnnnnvnd##f
+#               4##c|+|+|]m#kvnvnno##P
+#                4#ma+|++]mmhvnnvq##P'
+#                 ?$#q%+|dmmmvnnm##!
+#                  -4##wu#mm#pw##7'
+#                    -?$##m####Y'
+#                       "Y##Y"-
+#
+`
+
 		const welcomeMessage = `#
 # Welcome to the CockroachDB SQL shell, served over SSH oh wow, neat.
 # All statements must be terminated by a semicolon.
-# To exit, press '<Ctrl>+c' or type: \q.
+# To exit, type: \q.
 #
 `
 
@@ -70,6 +94,12 @@ func (s *sshServer) start(
 			Handler: func(s ssh.Session) {
 				sessionPty, _, accepted := s.Pty()
 				fmt.Fprintf(os.Stderr, "accepted pty?: %+v, pty = %#v\n", accepted, sessionPty)
+				if !accepted {
+					io.WriteString(s, "# For the best experience, please request a TTY.\n")
+					io.WriteString(s, "# Typically that's by adding '-t' to your SSH command, e.g.:\n")
+					io.WriteString(s, "#     ssh -t -p 22775 example.com 'postgresql://foo:passwd@/bar'\n")
+					io.WriteString(s, "#         ^^\n\n")
+				}
 
 				thePty, theTty, err := pty.Open()
 
@@ -113,13 +143,17 @@ func (s *sshServer) start(
 					return
 				}
 				defer closeFn()
-				io.WriteString(theTty, welcomeMessage)
 
 				conn, err := cfg.MakeConn(connURL.ToPQ().String())
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "Error calling cfg.MakeConn(): %+v\n", err)
 					return
 				}
+
+				if sessionPty.Window.Width >= 52 && sessionPty.Window.Height >= 30 {
+					io.WriteString(theTty, roach)
+				}
+				io.WriteString(theTty, welcomeMessage)
 
 				// Copy the SSH session's stdin to the PTY's stdin.
 				go func() { _, _ = io.Copy(thePty, s) }()
