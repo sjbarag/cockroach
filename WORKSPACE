@@ -243,54 +243,49 @@ yarn_repositories(
     yarn_version = "1.22.11",
 )
 
-load("//build/bazelutil:seed_yarn_cache.bzl", "seed_yarn_cache")
-seed_yarn_cache(name = "yarn_cache")
+# load("//build/bazelutil:seed_yarn_cache.bzl", "seed_yarn_cache")
+# seed_yarn_cache(name = "yarn_cache")
 
 # Install external dependencies for NPM packages in pkg/ui/ as separate bazel
 # repositories, to avoid version conflicts between those packages.
 # Unfortunately Bazel's rules_nodejs does not support yarn workspaces, so
 # packages have isolated dependencies and must be installed as isolated
 # Bazel repositories.
-yarn_install(
-    name = "npm_eslint_plugin_crdb",
-    args = [
-        "--offline",
-        "--ignore-optional",
-    ],
-    data = [
-      "//pkg/ui:.yarnrc",
-      "@yarn_cache//:.seed",
-    ],
-    package_json = "//pkg/ui/workspaces/eslint-plugin-crdb:package.json",
-    strict_visibility = False,
-    yarn_lock = "//pkg/ui/workspaces/eslint-plugin-crdb:yarn.lock",
-    symlink_node_modules = True,
-)
+# yarn_install(
+#     name = "npm_eslint_plugin_crdb",
+#     args = [
+#         "--offline",
+#         "--ignore-optional",
+#     ],
+#     data = [
+#       "//pkg/ui:.yarnrc",
+#       "@yarn_cache//:.seed",
+#     ],
+#     package_json = "//pkg/ui/workspaces/eslint-plugin-crdb:package.json",
+#     strict_visibility = False,
+#     yarn_lock = "//pkg/ui/workspaces/eslint-plugin-crdb:yarn.lock",
+#     symlink_node_modules = True,
+# )
 
-yarn_install(
-    name = "npm_e2e_tests",
-    args = [
-        "--offline",
-    ],
-    data = [
-      "//pkg/ui:.yarnrc",
-      "@yarn_cache//:.seed",
-    ],
-    package_json = "//pkg/ui/workspaces/e2e-tests:package.json",
-    strict_visibility = False,
-    yarn_lock = "//pkg/ui/workspaces/e2e-tests:yarn.lock",
-    symlink_node_modules = True,
-)
+# yarn_install(
+#     name = "npm_e2e_tests",
+#     args = [
+#         "--offline",
+#     ],
+#     data = [
+#       "//pkg/ui:.yarnrc",
+#       "@yarn_cache//:.seed",
+#     ],
+#     package_json = "//pkg/ui/workspaces/e2e-tests:package.json",
+#     strict_visibility = False,
+#     yarn_lock = "//pkg/ui/workspaces/e2e-tests:yarn.lock",
+#     symlink_node_modules = True,
+# )
 
 yarn_install(
     name = "npm_protos",
     args = [
-        "--offline",
         "--ignore-optional",
-    ],
-    data = [
-      "//pkg/ui:.yarnrc",
-      "@yarn_cache//:.seed",
     ],
     package_path = "/",
     package_json = "//pkg/ui/workspaces/db-console/src/js:package.json",
@@ -298,32 +293,27 @@ yarn_install(
     yarn_lock = "//pkg/ui/workspaces/db-console/src/js:yarn.lock",
 )
 
-yarn_install(
-    name = "npm_db_console",
-    args = [
-        "--offline",
-        "--ignore-optional",
-    ],
-    data = [
-      "//pkg/ui:.yarnrc",
-      "@yarn_cache//:.seed",
-    ],
-    package_json = "//pkg/ui/workspaces/db-console:package.json",
-    yarn_lock = "//pkg/ui/workspaces/db-console:yarn.lock",
-    strict_visibility = False,
-    symlink_node_modules = True,
-)
+# yarn_install(
+#     name = "npm_db_console",
+#     args = [
+#         "--offline",
+#         "--ignore-optional",
+#     ],
+#     data = [
+#       "//pkg/ui:.yarnrc",
+#       "@yarn_cache//:.seed",
+#     ],
+#     package_json = "//pkg/ui/workspaces/db-console:package.json",
+#     yarn_lock = "//pkg/ui/workspaces/db-console:yarn.lock",
+#     strict_visibility = False,
+#     symlink_node_modules = True,
+# )
 
 yarn_install(
     name = "npm_cluster_ui",
     args = [
         "--verbose",
-        "--offline",
         "--ignore-optional",
-    ],
-    data = [
-      "//pkg/ui:.yarnrc",
-      "@yarn_cache//:.seed",
     ],
     package_json = "//pkg/ui/workspaces/cluster-ui:package.json",
     strict_visibility = False,
