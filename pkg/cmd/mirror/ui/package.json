@@ -1,0 +1,11 @@
+{
+  "name": "@cockroachlabs/yarn-lock-to-json",
+  "version": "1.0.0",
+  "description": "Prints a yarn.lock file in its JSON representation.",
+  "main": "index.js",
+  "license": "Apache 2.0",
+  "private": true,
+  "dependencies": {
+    "@yarnpkg/lockfile": "^1.1.0"
+  }
+}
