@@ -1,15 +1,29 @@
+load("//build/bazelutil/unused_checker:unused.bzl", "get_x_data")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@build_bazel_rules_nodejs//:index.bzl", "js_library", "nodejs_binary", "npm_package_bin")
+load(":index.bzl", "yarn_lock_to_json")
 
 go_library(
     name = "ui_lib",
     srcs = ["main.go"],
     importpath = "github.com/cockroachdb/cockroach/pkg/cmd/mirror/ui",
     visibility = ["//visibility:private"],
-    deps = ["//pkg/build/bazel"],
+    deps = [
+        "//pkg/util/envutil",
+        "@com_google_cloud_go_storage//:storage",
+        "@org_golang_google_api//googleapi",
+        "@org_golang_x_sync//errgroup",
+    ],
 )
 
 go_binary(
     name = "ui",
+    args = [
+        "$(rootpaths :all.yarn.json)",
+    ],
+    data = [
+        ":all.yarn.json",
+    ],
     embed = [":ui_lib"],
     visibility = ["//visibility:public"],
 )
@@ -20,3 +34,71 @@ exports_files(
     ],
     visibility = ["//visibility:public"],
 )
+
+# Declare a JS library that we can excute with nodejs_binary.
+js_library(
+    name = "yarn-lock-to-json__lib",
+    package_name = "@cockroachlabs/yarn-lock-to-json",
+    srcs = [
+        "index.js",
+        "package.json",
+    ],
+    visibility = ["//visibility:private"],
+    deps = [
+        "@npm_mirror_npm//:node_modules",
+    ],
+)
+
+# Declare a task that's executable with 'bazel run' only.
+nodejs_binary(
+    name = "yarn-lock-to-json",
+    data = [
+        ":yarn-lock-to-json__lib",
+    ],
+    entry_point = ":index.js",
+    visibility = ["//visibility:private"],
+)
+
+filegroup(
+    name = "all.yarn.json",
+    srcs = [
+        ":cluster-ui.yarn.json",
+        ":crdb-protobuf-client.yarn.json",
+        ":db-console.yarn.json",
+        ":e2e-tests.yarn.json",
+        ":eslint-plugin-crdb.yarn.json",
+        ":this.yarn.json",
+    ],
+)
+
+yarn_lock_to_json(
+    name = "this.yarn.json",
+    yarn_lock = ":yarn.lock",
+)
+
+yarn_lock_to_json(
+    name = "eslint-plugin-crdb.yarn.json",
+    yarn_lock = "//pkg/ui/workspaces/eslint-plugin-crdb:yarn.lock",
+)
+
+yarn_lock_to_json(
+    name = "crdb-protobuf-client.yarn.json",
+    yarn_lock = "//pkg/ui/workspaces/db-console/src/js:yarn.lock",
+)
+
+yarn_lock_to_json(
+    name = "cluster-ui.yarn.json",
+    yarn_lock = "//pkg/ui/workspaces/cluster-ui:yarn.lock",
+)
+
+yarn_lock_to_json(
+    name = "db-console.yarn.json",
+    yarn_lock = "//pkg/ui/workspaces/db-console:yarn.lock",
+)
+
+yarn_lock_to_json(
+    name = "e2e-tests.yarn.json",
+    yarn_lock = "//pkg/ui/workspaces/e2e-tests:yarn.lock",
+)
+
+get_x_data(name = "get_x_data")
