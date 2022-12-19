@@ -1,7 +1,7 @@
 {
-  "name": "@cockroachlabs/yarn-lock-to-json",
+  "name": "@cockroachlabs/yarn-lock-json",
   "version": "1.0.0",
-  "description": "Prints a yarn.lock file in its JSON representation.",
+  "description": "CLI tools for JSON-serializing and -deserializing yarn.lock files.",
   "license": "Apache 2.0",
   "private": true,
   "dependencies": {

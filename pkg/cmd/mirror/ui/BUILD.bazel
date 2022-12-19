@@ -2,8 +2,64 @@ load("//build/bazelutil/unused_checker:unused.bzl", "get_x_data")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library", "nodejs_binary", "npm_package_bin")
 load("@bazel_skylib//rules:run_binary.bzl", "run_binary")
-load(":index.bzl", "yarn_lock_to_json")
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load(":index.bzl", "yarn_lock_to_json", "json_to_yarn_lock")
 
+# Declare a pair of JS libraries that we can excute with nodejs_binary.
+js_library(
+    name = "yarn-lock-json__lib",
+    package_name = "@cockroachlabs/yarn-lock-json",
+    srcs = [
+        "parse.js",
+        "stringify.js",
+        "package.json",
+    ],
+    visibility = ["//visibility:private"],
+    deps = [
+        "@npm_mirror_npm//:node_modules",
+    ],
+)
+
+_LOCKFILES = {
+    "this": "//" + package_name() + ":yarn.lock",
+    "eslint-plugin-crdb": "//pkg/ui/workspaces/eslint-plugin-crdb:yarn.lock",
+    "crdb-protobuf-client": "//pkg/ui/workspaces/db-console/src/js:yarn.lock",
+    "cluster-ui": "//pkg/ui/workspaces/cluster-ui:yarn.lock",
+    "db-console": "//pkg/ui/workspaces/db-console:yarn.lock",
+    "e2e-tests": "//pkg/ui/workspaces/e2e-tests:yarn.lock",
+}
+
+# Declare a task that's executable with 'bazel run' only.
+nodejs_binary(
+    name = "yarn-lock-parse",
+    data = [
+        ":yarn-lock-json__lib",
+    ],
+    entry_point = "parse.js",
+    visibility = ["//visibility:private"],
+)
+
+# Declare a task that's executable with 'bazel run' only.
+nodejs_binary(
+    name = "yarn-lock-stringify",
+    data = [
+        ":yarn-lock-json__lib",
+    ],
+    entry_point = "stringify.js",
+    visibility = ["//visibility:private"],
+)
+
+# Convert all yarn.lock files to their JSON representations...
+[
+    yarn_lock_to_json(
+        name = k + ".yarn.json",
+        yarn_lock = v,
+    )
+    for [k, v] in _LOCKFILES.items()
+]
+
+# ...use JSON representations to mirror dependencies to GCS
+# and output JSON files with new locations...
 go_library(
     name = "ui_lib",
     srcs = ["main.go"],
@@ -22,18 +78,6 @@ go_binary(
     name = "mirror_npm",
     embed = [":ui_lib"],
     visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "all.yarn.json.new",
-    srcs = [
-        "cluster-ui.yarn.json.new",
-        "crdb-protobuf-client.yarn.json.new",
-        "db-console.yarn.json.new",
-        "e2e-tests.yarn.json.new",
-        "eslint-plugin-crdb.yarn.json.new",
-        "this.yarn.json.new",
-    ],
 )
 
 run_binary(
@@ -68,58 +112,45 @@ run_binary(
     },
 )
 
-# Declare a pair of JS libraries that we can excute with nodejs_binary.
-js_library(
-    name = "yarn-lock-to-json__lib",
-    package_name = "@cockroachlabs/yarn-lock-to-json",
-    srcs = [
-        "parse.js",
-        "package.json",
+# ...and convert those back to the canonical format.
+[
+    json_to_yarn_lock(
+        name = k + ".yarn.lock.new",
+        json = "__{}.yarn.json.new".format(k),
+    )
+    for [k, v] in _LOCKFILES.items()
+]
+
+# Define a task that copies those *.yarn.lock.new files back out into the Bazel workspace.
+# Generate the updater script so there's only one target for devs to run,
+# even if many generated files are in the source folder.
+write_file(
+    name = "update_yarn_lock_sh",
+    out = "update-yarn-lock-files.sh",
+    content = [
+        # This depends on bash, would need tweaks for Windows
+        "#!/usr/bin/env bash",
+        "env",
+        "set -x",
+        # Bazel gives us a way to access the source folder!
+        "cd $BUILD_WORKSPACE_DIRECTORY",
+    ] + [
+        # Paths are now relative to the workspace.
+        # We can copy files from bazel-bin to the sources
+        "cp -fv _bazel/bin/{0}/__{1}.yarn.lock.new {2}".format(
+            package_name(),
+            k,
+            v.replace("//", "").replace(":", "/") 
+        )
+        for [k, v] in _LOCKFILES.items()
     ],
-    visibility = ["//visibility:private"],
-    deps = [
-        "@npm_mirror_npm//:node_modules",
-    ],
 )
 
-# Declare a task that's executable with 'bazel run' only.
-nodejs_binary(
-    name = "yarn-lock-to-json",
-    data = [
-        ":yarn-lock-to-json__lib",
-    ],
-    entry_point = "parse.js",
-    visibility = ["//visibility:private"],
+sh_binary(
+    name = "update_yarn_lock",
+    srcs = [":update_yarn_lock_sh"],
+    data = _LOCKFILES.values(),
 )
 
-yarn_lock_to_json(
-    name = "this.yarn.json",
-    yarn_lock = "yarn.lock",
-)
-
-yarn_lock_to_json(
-    name = "eslint-plugin-crdb.yarn.json",
-    yarn_lock = "//pkg/ui/workspaces/eslint-plugin-crdb:yarn.lock",
-)
-
-yarn_lock_to_json(
-    name = "crdb-protobuf-client.yarn.json",
-    yarn_lock = "//pkg/ui/workspaces/db-console/src/js:yarn.lock",
-)
-
-yarn_lock_to_json(
-    name = "cluster-ui.yarn.json",
-    yarn_lock = "//pkg/ui/workspaces/cluster-ui:yarn.lock",
-)
-
-yarn_lock_to_json(
-    name = "db-console.yarn.json",
-    yarn_lock = "//pkg/ui/workspaces/db-console:yarn.lock",
-)
-
-yarn_lock_to_json(
-    name = "e2e-tests.yarn.json",
-    yarn_lock = "//pkg/ui/workspaces/e2e-tests:yarn.lock",
-)
 
 get_x_data(name = "get_x_data")
