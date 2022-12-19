@@ -73,7 +73,7 @@ js_library(
     name = "yarn-lock-to-json__lib",
     package_name = "@cockroachlabs/yarn-lock-to-json",
     srcs = [
-        "index.js",
+        "parse.js",
         "package.json",
     ],
     visibility = ["//visibility:private"],
@@ -88,7 +88,7 @@ nodejs_binary(
     data = [
         ":yarn-lock-to-json__lib",
     ],
-    entry_point = ":index.js",
+    entry_point = "parse.js",
     visibility = ["//visibility:private"],
 )
 
