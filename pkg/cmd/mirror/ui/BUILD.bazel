@@ -1,6 +1,7 @@
 load("//build/bazelutil/unused_checker:unused.bzl", "get_x_data")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library", "nodejs_binary", "npm_package_bin")
+load("@bazel_skylib//rules:run_binary.bzl", "run_binary")
 load(":index.bzl", "yarn_lock_to_json")
 
 go_library(
@@ -9,6 +10,7 @@ go_library(
     importpath = "github.com/cockroachdb/cockroach/pkg/cmd/mirror/ui",
     visibility = ["//visibility:private"],
     deps = [
+        "//pkg/build/bazel",
         "//pkg/util/envutil",
         "@com_google_cloud_go_storage//:storage",
         "@org_golang_google_api//googleapi",
@@ -17,25 +19,56 @@ go_library(
 )
 
 go_binary(
-    name = "ui",
-    args = [
-        "$(rootpaths :all.yarn.json)",
-    ],
-    data = [
-        ":all.yarn.json",
-    ],
+    name = "mirror_npm",
     embed = [":ui_lib"],
     visibility = ["//visibility:public"],
 )
 
-exports_files(
-    [
-        "yarn.lock",
+filegroup(
+    name = "all.yarn.json.new",
+    srcs = [
+        "cluster-ui.yarn.json.new",
+        "crdb-protobuf-client.yarn.json.new",
+        "db-console.yarn.json.new",
+        "e2e-tests.yarn.json.new",
+        "eslint-plugin-crdb.yarn.json.new",
+        "this.yarn.json.new",
     ],
-    visibility = ["//visibility:public"],
 )
 
-# Declare a JS library that we can excute with nodejs_binary.
+run_binary(
+    name = "run_mirror_npm",
+    tool = ":mirror_npm",
+    srcs = [
+        ":cluster-ui.yarn.json",
+        ":crdb-protobuf-client.yarn.json",
+        ":db-console.yarn.json",
+        ":e2e-tests.yarn.json",
+        ":eslint-plugin-crdb.yarn.json",
+        ":this.yarn.json",
+    ],
+    outs = [
+        "__cluster-ui.yarn.json.new",
+        "__crdb-protobuf-client.yarn.json.new",
+        "__db-console.yarn.json.new",
+        "__e2e-tests.yarn.json.new",
+        "__eslint-plugin-crdb.yarn.json.new",
+        "__this.yarn.json.new",
+    ],
+    args = [
+        "$(location :cluster-ui.yarn.json)",
+        "$(location :crdb-protobuf-client.yarn.json)",
+        "$(location :db-console.yarn.json)",
+        "$(location :e2e-tests.yarn.json)",
+        "$(location :eslint-plugin-crdb.yarn.json)",
+        "$(location :this.yarn.json)",
+    ],
+    env = {
+        "COCKROACH_BAZEL_CAN_MIRROR": "true",
+    },
+)
+
+# Declare a pair of JS libraries that we can excute with nodejs_binary.
 js_library(
     name = "yarn-lock-to-json__lib",
     package_name = "@cockroachlabs/yarn-lock-to-json",
@@ -59,21 +92,9 @@ nodejs_binary(
     visibility = ["//visibility:private"],
 )
 
-filegroup(
-    name = "all.yarn.json",
-    srcs = [
-        ":cluster-ui.yarn.json",
-        ":crdb-protobuf-client.yarn.json",
-        ":db-console.yarn.json",
-        ":e2e-tests.yarn.json",
-        ":eslint-plugin-crdb.yarn.json",
-        ":this.yarn.json",
-    ],
-)
-
 yarn_lock_to_json(
     name = "this.yarn.json",
-    yarn_lock = ":yarn.lock",
+    yarn_lock = "yarn.lock",
 )
 
 yarn_lock_to_json(

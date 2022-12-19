@@ -13,7 +13,6 @@ import (
 	"sync"
 
 	"cloud.google.com/go/storage"
-	"github.com/cockroachdb/cockroach/pkg/util/envutil"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/googleapi"
 )
@@ -62,10 +61,6 @@ func (lfe *LockfileEntry) MarshalJSON() ([]byte, error) {
 	}
 
 	return json.Marshal(ie)
-}
-
-func canMirror() bool {
-	return envutil.EnvOrDefaultBool("COCKROACH_BAZEL_CAN_MIRROR", false)
 }
 
 func parseLockfiles(jsonLockfiles []string) (map[string][]LockfileEntry, error) {
@@ -196,7 +191,7 @@ func updateLockfileUrls(ctx context.Context, lockfiles Lockfiles) error {
 
 func writeNewLockfileJsons(ctx context.Context, lockfiles Lockfiles) error {
 	for filename, entries := range lockfiles {
-		fmt.Fprintf(os.Stderr, "generating new json for %q", filename)
+		fmt.Fprintf(os.Stderr, "generating new json for %q\n", filename)
 		out := Lockfile{}
 		for _, entry := range entries {
 			out[entry.Name] = entry
@@ -206,8 +201,8 @@ func writeNewLockfileJsons(ctx context.Context, lockfiles Lockfiles) error {
 			return fmt.Errorf("unable to marshal new lockfile to JSON: %v", err)
 		}
 		outname := filename + ".new"
-		fmt.Fprintf(os.Stderr, "writing new file %q", outname)
-		if err := os.WriteFile(filename+".new", asJson, os.ModePerm); err != nil {
+		fmt.Fprintf(os.Stderr, "writing new file %q\n", outname)
+		if err := os.WriteFile(outname, asJson, os.ModePerm); err != nil {
 			return fmt.Errorf("unable to write new file %q: %v", outname, err)
 		}
 	}
@@ -216,9 +211,8 @@ func writeNewLockfileJsons(ctx context.Context, lockfiles Lockfiles) error {
 }
 
 func main() {
-	if !canMirror() {
-		fmt.Println("Exiting without doing anything, since COCKROACH_BAZEL_CAN_MIRROR isn't truthy")
-		os.Exit(0)
+	for _, kv := range os.Environ() {
+		fmt.Fprintln(os.Stderr, kv)
 	}
 
 	fmt.Fprintf(os.Stderr, "len(os.Args) = %d\n", len(os.Args))
