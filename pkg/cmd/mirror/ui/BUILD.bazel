@@ -149,7 +149,10 @@ write_file(
 sh_binary(
     name = "update_yarn_lock",
     srcs = [":update_yarn_lock_sh"],
-    data = _LOCKFILES.values(),
+    data = [
+        ":{}.yarn.lock.new".format(k)
+        for k in _LOCKFILES.keys()
+    ]
 )
 
 
