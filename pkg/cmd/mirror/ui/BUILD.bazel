@@ -3,6 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 load("@build_bazel_rules_nodejs//:index.bzl", "js_library", "nodejs_binary", "npm_package_bin")
 load("@bazel_skylib//rules:run_binary.bzl", "run_binary")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load(":index.bzl", "yarn_lock_to_json", "json_to_yarn_lock")
 
 # Declare a pair of JS libraries that we can excute with nodejs_binary.
@@ -62,12 +63,11 @@ nodejs_binary(
 # and output JSON files with new locations...
 go_library(
     name = "ui_lib",
-    srcs = ["main.go"],
+    srcs = ["main.go", "model.go"],
     importpath = "github.com/cockroachdb/cockroach/pkg/cmd/mirror/ui",
     visibility = ["//visibility:private"],
     deps = [
         "//pkg/build/bazel",
-        "//pkg/util/envutil",
         "@com_google_cloud_go_storage//:storage",
         "@org_golang_google_api//googleapi",
         "@org_golang_x_sync//errgroup",
@@ -81,7 +81,7 @@ go_binary(
 )
 
 run_binary(
-    name = "run_mirror_npm",
+    name = "generate_yarn_lock_json_new",
     tool = ":mirror_npm",
     srcs = [
         ":cluster-ui.yarn.json",
@@ -107,9 +107,28 @@ run_binary(
         "$(location :eslint-plugin-crdb.yarn.json)",
         "$(location :this.yarn.json)",
     ],
-    env = {
-        "COCKROACH_BAZEL_CAN_MIRROR": "true",
-    },
+)
+
+go_binary(
+    name = "mirror_npm_dependencies",
+    embed = [":ui_lib"],
+    data = [
+        ":cluster-ui.yarn.json",
+        ":crdb-protobuf-client.yarn.json",
+        ":db-console.yarn.json",
+        ":e2e-tests.yarn.json",
+        ":eslint-plugin-crdb.yarn.json",
+        ":this.yarn.json",
+    ],
+    args = [
+        "--mirror",
+        "$(location :cluster-ui.yarn.json)",
+        "$(location :crdb-protobuf-client.yarn.json)",
+        "$(location :db-console.yarn.json)",
+        "$(location :e2e-tests.yarn.json)",
+        "$(location :eslint-plugin-crdb.yarn.json)",
+        "$(location :this.yarn.json)",
+    ],
 )
 
 # ...and convert those back to the canonical format.
@@ -121,9 +140,7 @@ run_binary(
     for [k, v] in _LOCKFILES.items()
 ]
 
-# Define a task that copies those *.yarn.lock.new files back out into the Bazel workspace.
-# Generate the updater script so there's only one target for devs to run,
-# even if many generated files are in the source folder.
+# Emit a script that copies those *.yarn.lock.new files back out into the Bazel workspace.
 write_file(
     name = "update_yarn_lock_sh",
     out = "update-yarn-lock-files.sh",
@@ -146,6 +163,7 @@ write_file(
     ],
 )
 
+# And a 'bazel run' task to execute that script.
 sh_binary(
     name = "update_yarn_lock",
     srcs = [":update_yarn_lock_sh"],
@@ -155,5 +173,24 @@ sh_binary(
     ]
 )
 
+# Define a diffing test for each regenerated yarn.lock file...
+[
+    diff_test(
+        name = "compare_{}.yarn.lock".format(k),
+        file1 = v,
+        file2 = k + ".yarn.lock.new",
+    )
+    
+    for [k, v] in _LOCKFILES.items()
+]
+
+# ...and an overall test suite.
+test_suite(
+    name = "are_lockfiles_updated",
+    tests = [
+        ":compare_{}.yarn.lock".format(k)
+        for k in _LOCKFILES.keys()
+    ]
+)
 
 get_x_data(name = "get_x_data")

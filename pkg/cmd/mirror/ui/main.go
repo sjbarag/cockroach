@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"runtime"
 	"sync"
 
@@ -16,52 +18,6 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/googleapi"
 )
-
-type Lockfile = map[string]LockfileEntry
-type Lockfiles = map[string][]LockfileEntry
-
-type LockfileEntry struct {
-	Name      string
-	Version   string
-	Resolved  *url.URL
-	Integrity string
-}
-
-type IntermediateEntry struct {
-	Version   string `json:"version,omitempty"`
-	Resolved  string `json:"resolved,omitempty"`
-	Integrity string `json:"integrity,omitempty"`
-}
-
-func (lfe *LockfileEntry) UnmarshalJSON(in []byte) error {
-	ie := new(IntermediateEntry)
-	if err := json.Unmarshal(in, &ie); err != nil {
-		return err
-	}
-
-	lfe.Version = ie.Version
-	lfe.Integrity = ie.Integrity
-
-	if ie.Resolved != "" {
-		resolvedUrl, err := url.Parse(ie.Resolved)
-		if err != nil {
-			return err
-		}
-		lfe.Resolved = resolvedUrl
-	}
-	return nil
-}
-
-func (lfe *LockfileEntry) MarshalJSON() ([]byte, error) {
-	ie := new(IntermediateEntry)
-	ie.Version = lfe.Version
-	ie.Integrity = lfe.Integrity
-	if lfe.Resolved != nil {
-		ie.Resolved = lfe.Resolved.String()
-	}
-
-	return json.Marshal(ie)
-}
 
 func parseLockfiles(jsonLockfiles []string) (map[string][]LockfileEntry, error) {
 	entries := map[string][]LockfileEntry{}
@@ -151,8 +107,12 @@ func mirrorLockfileEntry(ctx context.Context, bucket *storage.BucketHandle, entr
 	defer res.Body.Close()
 
 	// Then upload it
+	uploadPath, err := filepath.Rel("/", entry.Resolved.Path)
+	if err != nil {
+		return fmt.Errorf("could not relativize path %q", entry.Resolved.Path)
+	}
 	dbgLog("Uploading file:", entry.Resolved.Path)
-	upload := bucket.Object(entry.Resolved.Path).If(storage.Conditions{DoesNotExist: true}).NewWriter(ctx)
+	upload := bucket.Object(uploadPath).If(storage.Conditions{DoesNotExist: true}).NewWriter(ctx)
 	if _, err := io.Copy(upload, res.Body); err != nil {
 		return fmt.Errorf("unexpected error while uploading %q: %v", entry.Resolved.Path, err)
 	}
@@ -211,32 +171,35 @@ func writeNewLockfileJsons(ctx context.Context, lockfiles Lockfiles) error {
 }
 
 func main() {
-	for _, kv := range os.Environ() {
-		fmt.Fprintln(os.Stderr, kv)
-	}
+	var shouldMirror = flag.Bool("mirror", false, "mirrors dependencies to GCS instead of regenerate yarn.lock files.")
+	flag.Parse()
 
-	fmt.Fprintf(os.Stderr, "len(os.Args) = %d\n", len(os.Args))
-	fmt.Fprintf(os.Stderr, "os.Args = %v\n", os.Args)
+	fmt.Fprintf(os.Stderr, "len(os.Args) = %d\n", flag.NArg())
+	fmt.Fprintf(os.Stderr, "os.Args = %v\n", flag.Args())
 
-	lockfiles, err := parseLockfiles(os.Args[1:])
+	lockfiles, err := parseLockfiles(flag.Args())
 	if err != nil {
 		fmt.Println("ERROR: ", err)
 		os.Exit(1)
 	}
 
 	ctx := context.Background()
-	if err := mirrorDependencies(ctx, lockfiles); err != nil {
-		fmt.Println("ERROR: ", err)
-		os.Exit(1)
-	}
+	if shouldMirror != nil && *shouldMirror {
+		fmt.Println("INFO: mirroring dependencies to GCS")
+		if err := mirrorDependencies(ctx, lockfiles); err != nil {
+			fmt.Println("ERROR: ", err)
+			os.Exit(1)
+		}
+	} else {
+		fmt.Println("INFO: regenerating *.yarn.json files with GCS URLs")
+		if err := updateLockfileUrls(ctx, lockfiles); err != nil {
+			fmt.Println("ERROR: ", err)
+			os.Exit(1)
+		}
 
-	if err := updateLockfileUrls(ctx, lockfiles); err != nil {
-		fmt.Println("ERROR: ", err)
-		os.Exit(1)
-	}
-
-	if err := writeNewLockfileJsons(ctx, lockfiles); err != nil {
-		fmt.Println("ERROR: ", err)
-		os.Exit(1)
+		if err := writeNewLockfileJsons(ctx, lockfiles); err != nil {
+			fmt.Println("ERROR: ", err)
+			os.Exit(1)
+		}
 	}
 }
