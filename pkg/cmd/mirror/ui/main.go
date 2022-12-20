@@ -135,7 +135,7 @@ func mirrorLockfileEntry(ctx context.Context, bucket *storage.BucketHandle, entr
 func updateLockfileUrls(ctx context.Context, lockfiles Lockfiles) error {
 	for _, entries := range lockfiles {
 		for _, entry := range entries {
-			if entry.Resolved == nil {
+			if entry.Resolved == nil || entry.Resolved.Host == "storage.googleapis.com" {
 				continue
 			}
 			newPath, err := url.JoinPath(mirrorBucketName, entry.Resolved.Path)
