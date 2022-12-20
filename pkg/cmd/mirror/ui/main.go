@@ -12,15 +12,16 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"sync"
 
 	"cloud.google.com/go/storage"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/googleapi"
 )
 
-func parseLockfiles(jsonLockfiles []string) (map[string][]LockfileEntry, error) {
-	entries := map[string][]LockfileEntry{}
+// parseLockfiles reads .json files from-disk and JSON-deserializes them into a
+// map of file path to array of LockfileEntry structs.
+func parseLockfiles(jsonLockfiles []string) (Lockfiles, error) {
+	entries := Lockfiles{}
 	for _, path := range jsonLockfiles {
 		lf := new(Lockfile)
 		contents, err := os.ReadFile(path)
@@ -44,79 +45,88 @@ func parseLockfiles(jsonLockfiles []string) (map[string][]LockfileEntry, error) 
 
 const mirrorBucketName = "barag-sandbox-crdb-mirror-npm"
 
+// mirrorDependencies downloads all files in public registries listed in the
+// provided lockfiles and reuploads them to a Google Cloud Storage bucket
+// controlled by Cockroach Labs.
 func mirrorDependencies(ctx context.Context, lockfiles Lockfiles) error {
+	// Dedupe dependencies between lockfiles prevent multiple Goroutines from
+	// writing the same file, and to minimize work (multiple projects depend on the
+	// same version typescript, for example).
+	pathsToUrls := map[string]*url.URL{}
+	for _, entries := range lockfiles {
+		for _, entry := range entries {
+			if _, exists := pathsToUrls[entry.Resolved.Path]; exists {
+				continue
+			}
+
+			pathsToUrls[entry.Resolved.Path] = entry.Resolved
+		}
+	}
+
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return fmt.Errorf("unable to create Google Cloud Storage client: %v", err)
 	}
-
 	bucket := client.Bucket(mirrorBucketName)
 
+	// Download and upload files in parallel.
 	g, ctx := errgroup.WithContext(context.Background())
 	g.SetLimit(runtime.GOMAXPROCS(0))
-	for _, entries := range lockfiles {
-		for _, entry := range entries {
-			entry := entry
-			g.Go(func() error {
-				return mirrorLockfileEntry(ctx, bucket, entry)
-			})
-		}
+	for _, url := range pathsToUrls {
+		url := url
+		g.Go(func() error {
+			return mirrorUrl(ctx, bucket, url)
+		})
+
 	}
 	return g.Wait()
 }
 
-var stderrLock sync.Mutex
+// mirrorUrl downloads the single file at url and reuploads it to bucket.
+func mirrorUrl(ctx context.Context, bucket *storage.BucketHandle, url *url.URL) error {
+	const yarnRegistry = "registry.yarnpkg.com"
+	const npmjsComRegistry = "registry.npmjs.com"
+	const npmjsOrgRegistry = "registry.npmjs.org"
 
-func dbgLog(args ...interface{}) {
-	stderrLock.Lock()
-	defer stderrLock.Unlock()
-
-	fmt.Fprintln(os.Stderr, args...)
-}
-
-const yarnRegistry = "registry.yarnpkg.com"
-const npmjsComRegistry = "registry.npmjs.com"
-const npmjsOrgRegistry = "registry.npmjs.org"
-
-func mirrorLockfileEntry(ctx context.Context, bucket *storage.BucketHandle, entry LockfileEntry) error {
-	if entry.Resolved == nil {
+	if url == nil {
 		return nil
 	}
 
-	hostname := entry.Resolved.Hostname()
+	// Only mirror known registries.
+	hostname := url.Hostname()
 	if hostname != yarnRegistry && hostname != npmjsComRegistry && hostname != npmjsOrgRegistry {
-		dbgLog("Skipping mirror for entry", entry)
 		return nil
 	}
 
-	tgzUrl := entry.Resolved.String()
-	dbgLog("Downloading file:", tgzUrl)
-
-	// Download the file
+	// Download the file.
+	tgzUrl := url.String()
 	res, err := http.DefaultClient.Get(tgzUrl)
 	if err != nil {
 		return fmt.Errorf("unable to request file %q: %v", tgzUrl, err)
 	}
 
+	// Bail if the file couldn't be downloaded.
 	if res.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(res.Body)
 		defer res.Body.Close()
 		return fmt.Errorf("received non-200 status code %q from %q. body = %s", res.Status, tgzUrl, body)
 	}
-
 	defer res.Body.Close()
 
-	// Then upload it
-	uploadPath, err := filepath.Rel("/", entry.Resolved.Path)
+	// Removing the leading /, so that files don't have to be downloaded from
+	// storage.googleapis.com/bucket-name//foo (note the extra slash).
+	uploadPath, err := filepath.Rel("/", url.Path)
 	if err != nil {
-		return fmt.Errorf("could not relativize path %q", entry.Resolved.Path)
-	}
-	dbgLog("Uploading file:", entry.Resolved.Path)
-	upload := bucket.Object(uploadPath).If(storage.Conditions{DoesNotExist: true}).NewWriter(ctx)
-	if _, err := io.Copy(upload, res.Body); err != nil {
-		return fmt.Errorf("unexpected error while uploading %q: %v", entry.Resolved.Path, err)
+		return fmt.Errorf("could not relativize path %q", url.Path)
 	}
 
+	// Then upload the file to GCS.
+	upload := bucket.Object(uploadPath).If(storage.Conditions{DoesNotExist: true}).NewWriter(ctx)
+	if _, err := io.Copy(upload, res.Body); err != nil {
+		return fmt.Errorf("unexpected error while uploading %q: %v", url.Path, err)
+	}
+
+	// Support failures of the DoesNotExist precondition, to avoid another round-trip to GCS.
 	if err := upload.Close(); err != nil {
 		var gerr *googleapi.Error
 		if errors.As(err, &gerr) {
@@ -132,6 +142,9 @@ func mirrorLockfileEntry(ctx context.Context, bucket *storage.BucketHandle, entr
 	return nil
 }
 
+// updateLockfileUrls rewrites the URL for every entry in each provided lockfile
+// to point to the same file hosted by the GCS bucket Cockroach Labs controls,
+// skipping URLs that already point to that bucket.
 func updateLockfileUrls(ctx context.Context, lockfiles Lockfiles) error {
 	for _, entries := range lockfiles {
 		for _, entry := range entries {
@@ -149,6 +162,10 @@ func updateLockfileUrls(ctx context.Context, lockfiles Lockfiles) error {
 	return nil
 }
 
+// writeNewLockfileJsons re-serializes a set of lockfile models, saving them to
+// the local filesystem next to their original versions with ".new" added to
+// the filename (e.g. the model for /path/to/foo.yarn.json is written to
+// /path/to/foo.yarn.json.new).
 func writeNewLockfileJsons(ctx context.Context, lockfiles Lockfiles) error {
 	for filename, entries := range lockfiles {
 		fmt.Fprintf(os.Stderr, "generating new json for %q\n", filename)
@@ -173,9 +190,6 @@ func writeNewLockfileJsons(ctx context.Context, lockfiles Lockfiles) error {
 func main() {
 	var shouldMirror = flag.Bool("mirror", false, "mirrors dependencies to GCS instead of regenerate yarn.lock files.")
 	flag.Parse()
-
-	fmt.Fprintf(os.Stderr, "len(os.Args) = %d\n", flag.NArg())
-	fmt.Fprintf(os.Stderr, "os.Args = %v\n", flag.Args())
 
 	lockfiles, err := parseLockfiles(flag.Args())
 	if err != nil {
