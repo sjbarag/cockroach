@@ -55,6 +55,9 @@ func mirrorDependencies(ctx context.Context, lockfiles Lockfiles) error {
 	pathsToUrls := map[string]*url.URL{}
 	for _, entries := range lockfiles {
 		for _, entry := range entries {
+			if entry.Resolved == nil {
+				continue
+			}
 			if _, exists := pathsToUrls[entry.Resolved.Path]; exists {
 				continue
 			}
