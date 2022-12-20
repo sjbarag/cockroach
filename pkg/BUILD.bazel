@@ -965,8 +965,10 @@ GO_TARGETS = [
     "//pkg/cmd/mirror/go:mirror",
     "//pkg/cmd/mirror/go:mirror_lib",
     "//pkg/cmd/mirror/go:mirror_test",
-    "//pkg/cmd/mirror/ui:mirror_npm",
-    "//pkg/cmd/mirror/ui:ui_lib",
+    "//pkg/cmd/mirror/npm:mirror_npm",
+    "//pkg/cmd/mirror/npm:mirror_npm_dependencies",
+    "//pkg/cmd/mirror/npm:npm_lib",
+    "//pkg/cmd/mirror/npm:ui_lib",
     "//pkg/cmd/prereqs:prereqs",
     "//pkg/cmd/prereqs:prereqs_lib",
     "//pkg/cmd/prereqs:prereqs_test",
@@ -2415,6 +2417,7 @@ GET_X_DATA_TARGETS = [
 <<<<<<< HEAD
     "//pkg/cmd/mirror:get_x_data",
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     "//pkg/cmd/mirror/go:get_x_data",
     "//pkg/cmd/mirror/npm:get_x_data",
@@ -2422,6 +2425,9 @@ GET_X_DATA_TARGETS = [
 =======
     "//pkg/cmd/mirror/ui:get_x_data",
 >>>>>>> 741b3b84e72 (snapshot: download and upload .tgz files (buffered in RAM))
+=======
+    "//pkg/cmd/mirror/npm:get_x_data",
+>>>>>>> 24316ddc1e9 (rename pkg/cmd/mirror/ui -> pkg/cmd/mirror/npm)
     "//pkg/cmd/prereqs:get_x_data",
     "//pkg/cmd/protoc-gen-gogoroach:get_x_data",
     "//pkg/cmd/publish-artifacts:get_x_data",

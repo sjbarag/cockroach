@@ -9,7 +9,7 @@ workspace(
         "@npm_cluster_ui": ["pkg/ui/workspaces/cluster_ui/node_modules"],
         "@npm_db_console": ["pkg/ui/workspaces/db-console/node_modules"],
         "@npm_e2e_tests": ["pkg/ui/workspaces/e2e-tests/node_modules"],
-        "@npm_mirror_npm": ["pkg/cmd/mirror/ui/node_modules"],
+        "@npm_mirror_npm": ["pkg/cmd/mirror/npm/node_modules"],
     },
 )
 
@@ -251,8 +251,8 @@ seed_yarn_cache(name = "yarn_cache")
 
 yarn_install(
     name = "npm_mirror_npm",
-    package_json = "//pkg/cmd/mirror/ui:package.json",
-    yarn_lock = "//pkg/cmd/mirror/ui:yarn.lock",
+    package_json = "//pkg/cmd/mirror/npm:package.json",
+    yarn_lock = "//pkg/cmd/mirror/npm:yarn.lock",
     symlink_node_modules = True,
     strict_visibility = False,
 )

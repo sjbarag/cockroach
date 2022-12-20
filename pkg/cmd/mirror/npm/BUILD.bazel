@@ -4,16 +4,16 @@ load("@build_bazel_rules_nodejs//:index.bzl", "js_library", "nodejs_binary", "np
 load("@bazel_skylib//rules:run_binary.bzl", "run_binary")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
-load(":index.bzl", "yarn_lock_to_json", "json_to_yarn_lock")
+load(":index.bzl", "json_to_yarn_lock", "yarn_lock_to_json")
 
 # Declare a pair of JS libraries that we can excute with nodejs_binary.
 js_library(
     name = "yarn-lock-json__lib",
     package_name = "@cockroachlabs/yarn-lock-json",
     srcs = [
+        "package.json",
         "parse.js",
         "stringify.js",
-        "package.json",
     ],
     visibility = ["//visibility:private"],
     deps = [
@@ -56,14 +56,20 @@ nodejs_binary(
         name = k + ".yarn.json",
         yarn_lock = v,
     )
-    for [k, v] in _LOCKFILES.items()
+    for [
+        k,
+        v,
+    ] in _LOCKFILES.items()
 ]
 
 # ...use JSON representations to mirror dependencies to GCS
 # and output JSON files with new locations...
 go_library(
     name = "ui_lib",
-    srcs = ["main.go", "model.go"],
+    srcs = [
+        "main.go",
+        "model.go",
+    ],
     importpath = "github.com/cockroachdb/cockroach/pkg/cmd/mirror/ui",
     visibility = ["//visibility:private"],
     deps = [
@@ -82,7 +88,6 @@ go_binary(
 
 run_binary(
     name = "generate_yarn_lock_json_new",
-    tool = ":mirror_npm",
     srcs = [
         ":cluster-ui.yarn.json",
         ":crdb-protobuf-client.yarn.json",
@@ -107,19 +112,11 @@ run_binary(
         "$(location :eslint-plugin-crdb.yarn.json)",
         "$(location :this.yarn.json)",
     ],
+    tool = ":mirror_npm",
 )
 
 go_binary(
     name = "mirror_npm_dependencies",
-    embed = [":ui_lib"],
-    data = [
-        ":cluster-ui.yarn.json",
-        ":crdb-protobuf-client.yarn.json",
-        ":db-console.yarn.json",
-        ":e2e-tests.yarn.json",
-        ":eslint-plugin-crdb.yarn.json",
-        ":this.yarn.json",
-    ],
     args = [
         "--mirror",
         "$(location :cluster-ui.yarn.json)",
@@ -129,6 +126,15 @@ go_binary(
         "$(location :eslint-plugin-crdb.yarn.json)",
         "$(location :this.yarn.json)",
     ],
+    data = [
+        ":cluster-ui.yarn.json",
+        ":crdb-protobuf-client.yarn.json",
+        ":db-console.yarn.json",
+        ":e2e-tests.yarn.json",
+        ":eslint-plugin-crdb.yarn.json",
+        ":this.yarn.json",
+    ],
+    embed = [":ui_lib"],
 )
 
 # ...and convert those back to the canonical format.
@@ -137,7 +143,10 @@ go_binary(
         name = k + ".yarn.lock.new",
         json = "__{}.yarn.json.new".format(k),
     )
-    for [k, v] in _LOCKFILES.items()
+    for [
+        k,
+        v,
+    ] in _LOCKFILES.items()
 ]
 
 # Emit a script that copies those *.yarn.lock.new files back out into the Bazel workspace.
@@ -157,9 +166,12 @@ write_file(
         "cp -fv _bazel/bin/{0}/__{1}.yarn.lock.new {2}".format(
             package_name(),
             k,
-            v.replace("//", "").replace(":", "/") 
+            v.replace("//", "").replace(":", "/"),
         )
-        for [k, v] in _LOCKFILES.items()
+        for [
+            k,
+            v,
+        ] in _LOCKFILES.items()
     ],
 )
 
@@ -170,7 +182,7 @@ sh_binary(
     data = [
         ":{}.yarn.lock.new".format(k)
         for k in _LOCKFILES.keys()
-    ]
+    ],
 )
 
 # Define a diffing test for each regenerated yarn.lock file...
@@ -180,8 +192,10 @@ sh_binary(
         file1 = v,
         file2 = k + ".yarn.lock.new",
     )
-    
-    for [k, v] in _LOCKFILES.items()
+    for [
+        k,
+        v,
+    ] in _LOCKFILES.items()
 ]
 
 # ...and an overall test suite.
@@ -190,7 +204,22 @@ test_suite(
     tests = [
         ":compare_{}.yarn.lock".format(k)
         for k in _LOCKFILES.keys()
-    ]
+    ],
+)
+
+go_library(
+    name = "npm_lib",
+    srcs = [
+        "main.go",
+        "model.go",
+    ],
+    importpath = "github.com/cockroachdb/cockroach/pkg/cmd/mirror/npm",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@com_google_cloud_go_storage//:storage",
+        "@org_golang_google_api//googleapi",
+        "@org_golang_x_sync//errgroup",
+    ],
 )
 
 get_x_data(name = "get_x_data")
