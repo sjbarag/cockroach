@@ -181,7 +181,6 @@ func updateLockfileUrls(ctx context.Context, lockfiles Lockfiles) error {
 // /path/to/foo.yarn.json.new).
 func writeNewLockfileJsons(ctx context.Context, lockfiles Lockfiles) error {
 	for filename, entries := range lockfiles {
-		fmt.Fprintf(os.Stderr, "generating new json for %q\n", filename)
 		out := Lockfile{}
 		for _, entry := range entries {
 			out[entry.Name] = entry
@@ -191,7 +190,6 @@ func writeNewLockfileJsons(ctx context.Context, lockfiles Lockfiles) error {
 			return fmt.Errorf("unable to marshal new lockfile to JSON: %v", err)
 		}
 		outname := filename + ".new"
-		fmt.Fprintf(os.Stderr, "writing new file %q\n", outname)
 		if err := os.WriteFile(outname, asJson, os.ModePerm); err != nil {
 			return fmt.Errorf("unable to write new file %q: %v", outname, err)
 		}

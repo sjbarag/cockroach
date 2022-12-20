@@ -10,6 +10,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -41,6 +42,7 @@ func makeUICmd(d *dev) *cobra.Command {
 	uiCmd.AddCommand(makeUITestCmd(d))
 	uiCmd.AddCommand(makeUIWatchCmd(d))
 	uiCmd.AddCommand(makeUIE2eCmd(d))
+	uiCmd.AddCommand(makeDepsCmd(d))
 
 	return uiCmd
 }
@@ -608,6 +610,46 @@ launching test in a real browser. Extra flags are passed directly to the
 	e2eTestCmd.Flags().Bool(headedFlag /* default */, false, "run tests in the interactive Cypres GUI")
 
 	return e2eTestCmd
+}
+
+func makeDepsCmd(d *dev) *cobra.Command {
+	var shouldMirror bool
+
+	depsCmd := &cobra.Command{
+		Use:   "deps",
+		Short: "checks for unmirrored dependencies, or mirrors then to GCS with --mirror",
+		RunE: func(cmd *cobra.Command, commandLine []string) error {
+			ctx := cmd.Context()
+
+			if shouldMirror {
+				// bazel run //pkg/cmd/mirror/npm:mirror_npm_dependencies
+				// bazel run //pkg/cmd/mirror/npm:update_lockfiles
+				mirrorArgv := []string{"run", "//pkg/cmd/mirror/npm:mirror_npm_dependencies"}
+				logCommand("bazel", mirrorArgv...)
+				if err := d.exec.CommandContextInheritingStdStreams(ctx, "bazel", mirrorArgv...); err != nil {
+					return fmt.Errorf("unable to mirror dependencies to GCS: %w", err)
+				}
+
+				updateArgv := []string{"run", "//pkg/cmd/mirror/npm:update_lockfiles"}
+				logCommand("bazel", updateArgv...)
+				if err := d.exec.CommandContextInheritingStdStreams(ctx, "bazel", updateArgv...); err != nil {
+					return fmt.Errorf("unable to update yarn.lock files: %w", err)
+				}
+
+				return nil
+			}
+
+			testArgv := []string{"test", "//pkg/cmd/mirror/npm:are_lockfiles_updated"}
+			logCommand("bazel", testArgv...)
+			if err := d.exec.CommandContextInheritingStdStreams(ctx, "bazel", testArgv...); err != nil {
+				return errors.New("Some yarn.lock files use non-mirrored dependencies. Please run './dev ui deps --mirror' to fix that.")
+			}
+			return nil
+		},
+	}
+	depsCmd.Flags().BoolVar(&shouldMirror, "mirror", false, "upload new dependencies to GCS and rewrite yarn.lock files")
+
+	return depsCmd
 }
 
 // buildBazelYarnArgv returns the provided argv formatted so it can be run with
