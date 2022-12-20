@@ -185,13 +185,13 @@ func main() {
 
 	ctx := context.Background()
 	if shouldMirror != nil && *shouldMirror {
-		fmt.Println("INFO: mirroring dependencies to GCS")
+		fmt.Fprintln(os.Stderr, "INFO: mirroring dependencies to GCS")
 		if err := mirrorDependencies(ctx, lockfiles); err != nil {
 			fmt.Println("ERROR: ", err)
 			os.Exit(1)
 		}
 	} else {
-		fmt.Println("INFO: regenerating *.yarn.json files with GCS URLs")
+		fmt.Fprintln(os.Stderr, "INFO: regenerating *.yarn.json files with GCS URLs")
 		if err := updateLockfileUrls(ctx, lockfiles); err != nil {
 			fmt.Println("ERROR: ", err)
 			os.Exit(1)
