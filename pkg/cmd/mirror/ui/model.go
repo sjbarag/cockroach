@@ -9,16 +9,18 @@ type Lockfile = map[string]LockfileEntry
 type Lockfiles = map[string][]LockfileEntry
 
 type LockfileEntry struct {
-	Name      string
-	Version   string
-	Resolved  *url.URL
-	Integrity string
+	Name         string
+	Version      string
+	Resolved     *url.URL
+	Integrity    string
+	Dependencies map[string]string
 }
 
 type IntermediateEntry struct {
-	Version   string `json:"version,omitempty"`
-	Resolved  string `json:"resolved,omitempty"`
-	Integrity string `json:"integrity,omitempty"`
+	Version      string            `json:"version,omitempty"`
+	Resolved     string            `json:"resolved,omitempty"`
+	Integrity    string            `json:"integrity,omitempty"`
+	Dependencies map[string]string `json:"dependencies,omitempty"`
 }
 
 func (lfe *LockfileEntry) UnmarshalJSON(in []byte) error {
@@ -29,6 +31,7 @@ func (lfe *LockfileEntry) UnmarshalJSON(in []byte) error {
 
 	lfe.Version = ie.Version
 	lfe.Integrity = ie.Integrity
+	lfe.Dependencies = ie.Dependencies
 
 	if ie.Resolved != "" {
 		resolvedUrl, err := url.Parse(ie.Resolved)
@@ -44,6 +47,7 @@ func (lfe LockfileEntry) MarshalJSON() ([]byte, error) {
 	ie := new(IntermediateEntry)
 	ie.Version = lfe.Version
 	ie.Integrity = lfe.Integrity
+	ie.Dependencies = lfe.Dependencies
 	if lfe.Resolved != nil {
 		ie.Resolved = lfe.Resolved.String()
 	}
