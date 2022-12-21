@@ -42,7 +42,7 @@ func makeUICmd(d *dev) *cobra.Command {
 	uiCmd.AddCommand(makeUITestCmd(d))
 	uiCmd.AddCommand(makeUIWatchCmd(d))
 	uiCmd.AddCommand(makeUIE2eCmd(d))
-	uiCmd.AddCommand(makeDepsCmd(d))
+	uiCmd.AddCommand(makeMirrorDepsCmd(d))
 
 	return uiCmd
 }
@@ -612,44 +612,35 @@ launching test in a real browser. Extra flags are passed directly to the
 	return e2eTestCmd
 }
 
-func makeDepsCmd(d *dev) *cobra.Command {
-	var shouldMirror bool
-
-	depsCmd := &cobra.Command{
-		Use:   "deps",
-		Short: "checks for unmirrored dependencies, or mirrors then to GCS with --mirror",
+func makeMirrorDepsCmd(d *dev) *cobra.Command {
+	mirrorDepsCmd := &cobra.Command{
+		Use:   "mirror-deps",
+		Short: "mirrors NPM dependencies to Google Cloud Storage",
+		Long: strings.TrimSpace(`
+Downloads NPM dependencies from public registries, uploads them to a Google
+Cloud Storage bucket managed by Cockroach Labs, and rewrites yarn.lock files
+so that future 'yarn install' invocations download from that bucket instead
+of the default registries.`),
 		RunE: func(cmd *cobra.Command, commandLine []string) error {
 			ctx := cmd.Context()
 
-			if shouldMirror {
-				// bazel run //pkg/cmd/mirror/npm:mirror_npm_dependencies
-				// bazel run //pkg/cmd/mirror/npm:update_lockfiles
-				mirrorArgv := []string{"run", "//pkg/cmd/mirror/npm:mirror_npm_dependencies"}
-				logCommand("bazel", mirrorArgv...)
-				if err := d.exec.CommandContextInheritingStdStreams(ctx, "bazel", mirrorArgv...); err != nil {
-					return fmt.Errorf("unable to mirror dependencies to GCS: %w", err)
-				}
-
-				updateArgv := []string{"run", "//pkg/cmd/mirror/npm:update_lockfiles"}
-				logCommand("bazel", updateArgv...)
-				if err := d.exec.CommandContextInheritingStdStreams(ctx, "bazel", updateArgv...); err != nil {
-					return fmt.Errorf("unable to update yarn.lock files: %w", err)
-				}
-
-				return nil
+			mirrorArgv := []string{"run", "//pkg/cmd/mirror/npm:mirror_npm_dependencies"}
+			logCommand("bazel", mirrorArgv...)
+			if err := d.exec.CommandContextInheritingStdStreams(ctx, "bazel", mirrorArgv...); err != nil {
+				return fmt.Errorf("unable to mirror dependencies to GCS: %w", err)
 			}
 
-			testArgv := []string{"test", "//pkg/cmd/mirror/npm:are_lockfiles_updated"}
-			logCommand("bazel", testArgv...)
-			if err := d.exec.CommandContextInheritingStdStreams(ctx, "bazel", testArgv...); err != nil {
-				return errors.New("Some yarn.lock files use non-mirrored dependencies. Please run './dev ui deps --mirror' to fix that.")
+			updateArgv := []string{"run", "//pkg/cmd/mirror/npm:update_lockfiles"}
+			logCommand("bazel", updateArgv...)
+			if err := d.exec.CommandContextInheritingStdStreams(ctx, "bazel", updateArgv...); err != nil {
+				return fmt.Errorf("unable to update yarn.lock files: %w", err)
 			}
+
 			return nil
 		},
 	}
-	depsCmd.Flags().BoolVar(&shouldMirror, "mirror", false, "upload new dependencies to GCS and rewrite yarn.lock files")
 
-	return depsCmd
+	return mirrorDepsCmd
 }
 
 // buildBazelYarnArgv returns the provided argv formatted so it can be run with
